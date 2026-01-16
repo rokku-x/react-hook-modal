@@ -1,6 +1,6 @@
 {
   "name": "@rokku-x/react-hook-modal",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "description": "A powerful and flexible React modal hook library that supports stacking and multi-window modals, with multiple rendering modes, dynamic and static modal support.",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
