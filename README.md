@@ -1,6 +1,6 @@
-# @rokku-x/react-hook-modal
+# react-hook-modal
 
-A powerful and flexible React modal hook library that supports stacking and multi-window modals, with multiple rendering modes, dynamic modal support, and zero dependencies (except React and Zustand).
+A powerful and flexible React modal hook library that supports stacking and multi-window modals, with multiple rendering modes, dynamic and static modal support, and zero dependencies (except React and Zustand).
 
 ## Installation
 

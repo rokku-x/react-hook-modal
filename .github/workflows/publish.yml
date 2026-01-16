@@ -1,0 +1,42 @@
+name: Publish to NPM
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  id-token: write 
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24.x'
+          registry-url: 'https://registry.npmjs.org/'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm test -- --run
+        env:
+          ROLLUP_SKIP_NATIVE: true
+
+      - name: Build
+        run: npm run build
+        env:
+          ROLLUP_SKIP_NATIVE: true
+
+      - name: Publish to NPM
+        run: npm publish --provenance --access public
+        env:
+          NPM_CONFIG_PROVENANCE: true
