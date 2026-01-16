@@ -19,6 +19,33 @@ npm install @rokku-x/react-hook-modal
 - ♿ **Accessibility** - Built-in support for scroll prevention and inert attribute
 - 📱 **Zero Dependencies** - Only requires React and Zustand
 
+## Bundle Size
+
+- ESM: ~2.42 kB gzipped (7.64 kB raw)
+- CJS: ~2.11 kB gzipped (5.72 kB raw)
+
+Measured with Vite build for v0.7.1.
+
+## Runtime Performance
+
+Measured locally (jsdom, React 18, macOS) using a microbenchmark:
+- Push/Pop: ~7.6 µs per op
+- Update Content: ~2.6 µs per op
+- Focus Modal: ~1.1 µs per op
+- Dynamic Portal Render: ~0.5 µs per call
+
+Notes:
+- Numbers are approximate and depend on device/load.
+- Portal render figures reflect the cost of creating the portal when the modal window ref exists.
+
+## Library Load Time
+
+Measured in Node (dynamic import/require):
+- CJS require: ~16.0 ms
+- ESM import: ~20.5 ms
+
+See perf harnesses under `src/__tests__/perf.test.ts` and `src/__tests__/perf-load.test.ts`.
+
 ## Quick Start
 
 ### 1. Setup the Base Modal Renderer
