@@ -1,3 +1,5 @@
+'use client'
+
 import { useId } from "react";
 import useBaseModal, { AcceptableElement, RenderMode } from "@/hooks/useBaseModal";
 export { RenderMode };

@@ -1,3 +1,5 @@
+'use client'
+
 export { default as useBaseModal } from './hooks/useBaseModal'
 export { RenderMode } from './hooks/useBaseModal'
 export type { AcceptableElement, ModalEntry } from './hooks/useBaseModal'

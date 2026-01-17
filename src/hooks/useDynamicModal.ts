@@ -1,3 +1,5 @@
+'use client'
+
 import { useRef, ReactNode, useId, useState, useEffect, createElement } from "react";
 import { createPortal } from "react-dom";
 import useBaseModal, { AcceptableElement, RenderMode, useBaseModalInternal } from "@/hooks/useBaseModal";
