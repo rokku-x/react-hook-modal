@@ -86,7 +86,7 @@ const useBaseModalStore = create<Store>()((set, get) => ({
     },
     actions: {
         pushModal: (modalId: string = useId(), el: AcceptableElement, isDynamic: boolean = false) => {
-            if (!get().isMounted) throw new Error("BaseModalRenderer must be mounted before using.");
+            if (!get().isMounted) console.error("BaseModalRenderer must be mounted before using.");
             const modal = get().modalStackMap.get(modalId);
             if (modal !== undefined) {
                 get().actions.focusModal(modalId);
@@ -101,7 +101,6 @@ const useBaseModalStore = create<Store>()((set, get) => ({
             return modalId
         },
         popModal: (modalId: string) => {
-            if (!get().isMounted) throw new Error("BaseModalRenderer must be mounted before using.");
             const modal = get().modalStackMap.get(modalId);
             if (!modal) return false;
             set((state) => {
@@ -113,11 +112,9 @@ const useBaseModalStore = create<Store>()((set, get) => ({
             return true
         },
         getModal: (modalId: string) => {
-            if (!get().isMounted) throw new Error("BaseModalRenderer must be mounted before using.");
             return get().modalStackMap.get(modalId);
         },
         updateModal: (modalId: string, newContent: AcceptableElement, isDynamic?: boolean) => {
-            if (!get().isMounted) throw new Error("BaseModalRenderer must be mounted before using.");
             const modal = get().modalStackMap.get(modalId);
             if (!modal) return false;
             set((state) => {
@@ -135,7 +132,6 @@ const useBaseModalStore = create<Store>()((set, get) => ({
             return true
         },
         focusModal: (modalId: string) => {
-            if (!get().isMounted) throw new Error("BaseModalRenderer must be mounted before using.");
             const item = get().modalStackMap.get(modalId);
             if (!item) return false;
             set((state) => {
@@ -147,12 +143,10 @@ const useBaseModalStore = create<Store>()((set, get) => ({
             return true;
         },
         getModalOrderIndex: (modalId: string) => {
-            if (!get().isMounted) throw new Error("BaseModalRenderer must be mounted before using.");
             const keys = Array.from(get().modalStackMap.keys());
             return keys.indexOf(modalId);
         },
         getModalWindowRef: (modalId: string) => {
-            if (!get().isMounted) throw new Error("BaseModalRenderer must be mounted before using.");
             return get().modalWindowRefs?.get(modalId);
         }
     }

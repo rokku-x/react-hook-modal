@@ -17,7 +17,6 @@ npm install @rokku-x/react-hook-modal
 - 📦 **TypeScript Support** - Full type safety out of the box
 - 🎨 **Customizable Styling** - Extensive styling props for complete control
 - ♿ **Accessibility** - Built-in support for scroll prevention and inert attribute
-- 🌐 **Server-Side Rendering** - Full SSR support with Next.js App Router
 - 📱 **Zero Dependencies** - Only requires React and Zustand
 
 ## Bundle Size
