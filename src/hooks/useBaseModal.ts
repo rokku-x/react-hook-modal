@@ -71,7 +71,8 @@ interface Store {
     }
 }
 
-const useBaseModalStore = create<Store>()((set, get) => ({
+
+export const useBaseModalStore = create<Store>()((set, get) => ({
     modalStackMap: new Map(),
     isMounted: false,
     renderMode: RenderMode.STACKED,
@@ -86,7 +87,8 @@ const useBaseModalStore = create<Store>()((set, get) => ({
     },
     actions: {
         pushModal: (modalId: string | undefined, el: AcceptableElement, isDynamic: boolean = false) => {
-            modalId = modalId ?? useId();
+            console.log(get())
+            modalId = modalId ?? Math.random().toString(36).substring(2, 6);
             if (!get().isMounted) console.error("BaseModalRenderer must be mounted before using.");
             const modal = get().modalStackMap.get(modalId);
             if (modal !== undefined) {

@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import dts from 'vite-plugin-dts'
 import path from 'path'
+import pkg from './package.json';
 
 export default defineConfig({
     resolve: {
@@ -34,7 +35,7 @@ export default defineConfig({
             }
         },
         rollupOptions: {
-            external: ['react', 'react-dom', 'react/jsx-runtime'],
+            external: ['react', 'react-dom', 'react/jsx-runtime', ...Object.keys(pkg.peerDependencies || {})],
             output: {
                 banner: "'use client'",
                 globals: {

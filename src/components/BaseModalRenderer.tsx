@@ -1,7 +1,7 @@
 'use client'
 
-import { useCallback, useEffect, useId, useRef } from "react";
-import useBaseModal, { RenderMode, useBaseModalInternal, } from "@/hooks/useBaseModal";
+import { useCallback, useEffect, useRef } from "react";
+import { RenderMode, useBaseModalInternal } from "@/hooks/useBaseModal";
 import { createPortal } from "react-dom";
 
 /**
@@ -64,7 +64,7 @@ export default function BaseModalRenderer({ renderMode = RenderMode.STACKED, id,
         const lastModalId = modalStackIds[modalStackIds.length - 1];
         if (lastModalId !== undefined) {
             dialogRef.current?.showModal();
-            document.body.setAttribute('inert', '');
+            document.body.setAttribute('inert', 'true');
         } else if (lastModalId === undefined) {
             dialogRef.current?.close();
             document.body.removeAttribute('inert');
@@ -90,7 +90,7 @@ export default function BaseModalRenderer({ renderMode = RenderMode.STACKED, id,
                         className={`modal-window ${windowClassName || ''}`}
                         id={modalStackIds[index]}
                         style={{ ...(windowStyle || {}) }}
-                        {...(currentModalId! !== modalStackIds[index] ? { inert: "" } as any : {})}
+                        {...(currentModalId! !== modalStackIds[index] ? { inert: true } as any : {})}
                         children={typeof modal === 'function' ? (modal as () => React.ReactNode | JSX.Element)() : modal}
                     />
                 ));
@@ -117,7 +117,7 @@ export default function BaseModalRenderer({ renderMode = RenderMode.STACKED, id,
                                 ...(windowStyle || {}),
                                 visibility: currentModalId! === modalStackIds[index] ? 'visible' : 'hidden'
                             }}
-                            {...(currentModalId! !== modalStackIds[index] ? { inert: "" } as any : {})}
+                            {...(currentModalId! !== modalStackIds[index] ? { inert: true } as any : {})}
                         >
                             {!isDynamic ? (typeof modal === 'function' ? (modal as () => React.ReactNode | JSX.Element)() : modal) : null}
                         </div>
