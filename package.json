@@ -1,38 +1,13 @@
 {
   "name": "@rokku-x/react-hook-modal",
-  "version": "0.7.4",
-  "description": "A powerful and flexible React modal hook library that supports stacking and multi-window modals, with multiple rendering modes, dynamic and static modal support.",
-  "main": "dist/index.cjs.js",
-  "module": "dist/index.esm.js",
-  "types": "dist/index.d.ts",
-  "files": [
-    "dist",
-    "README.md"
-  ],
-  "scripts": {
-    "build": "vite build",
-    "publish:first": "npm publish --access public --provenance false",
-    "prepare": "npm run build",
-    "dev": "vite",
-    "preview": "vite preview",
-    "test": "vitest"
-  },
+  "version": "0.7.5",
+  "author": "rokku-x",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rokku-x/react-hook-modal.git"
   },
-  "bugs": {
-    "url": "https://github.com/rokku-x/react-hook-modal/issues"
-  },
-  "homepage": "https://github.com/rokku-x/react-hook-modal#readme",
-  "publishConfig": {
-    "access": "public",
-    "provenance": true
-  },
-  "peerDependencies": {
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0"
-  },
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
   "devDependencies": {
     "@testing-library/jest-dom": "^6.0.0",
     "@testing-library/react": "^14.0.0",
@@ -47,7 +22,11 @@
     "vite-plugin-dts": "^4.5.4",
     "vitest": "^1.0.0"
   },
-  "sideEffects": false,
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "zustand": "^5.0.10"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -56,13 +35,15 @@
     },
     "./package.json": "./package.json"
   },
-  "typesVersions": {
-    "*": {
-      "*": [
-        "dist/*"
-      ]
-    }
+  "bugs": {
+    "url": "https://github.com/rokku-x/react-hook-modal/issues"
   },
+  "description": "A powerful and flexible React modal hook library that supports stacking and multi-window modals, with multiple rendering modes, dynamic and static modal support.",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "homepage": "https://github.com/rokku-x/react-hook-modal#readme",
   "keywords": [
     "react",
     "modal",
@@ -70,9 +51,26 @@
     "component",
     "library"
   ],
-  "author": "rokku-x",
   "license": "MIT",
-  "dependencies": {
-    "zustand": "^5.0.10"
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "build": "vite build",
+    "publish:first": "npm publish --access public --provenance false",
+    "prepare": "npm run build",
+    "dev": "vite",
+    "preview": "vite preview",
+    "test": "vitest"
+  },
+  "sideEffects": false,
+  "types": "dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "*": [
+        "dist/*"
+      ]
+    }
   }
 }
