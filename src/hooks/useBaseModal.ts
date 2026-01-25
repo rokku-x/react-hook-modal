@@ -85,7 +85,8 @@ const useBaseModalStore = create<Store>()((set, get) => ({
         setRenderMode: (mode: RenderMode) => set({ renderMode: mode }),
     },
     actions: {
-        pushModal: (modalId: string = useId(), el: AcceptableElement, isDynamic: boolean = false) => {
+        pushModal: (modalId: string | undefined, el: AcceptableElement, isDynamic: boolean = false) => {
+            modalId = modalId ?? useId();
             if (!get().isMounted) console.error("BaseModalRenderer must be mounted before using.");
             const modal = get().modalStackMap.get(modalId);
             if (modal !== undefined) {
