@@ -112,6 +112,39 @@ The main component that renders all modals in your application. Must be mounted 
 | `CURRENT_ONLY` | Only the topmost modal is visible |
 | `CURRENT_HIDDEN_STACK` | All modals are in the DOM but only the topmost is visible (best for preserving state) |
 
+## Helper Components: ModalBackdrop & ModalWindow
+
+Two small presentational components are exported for convenience to simplify markup and styling.
+
+- `ModalBackdrop` — A full-screen backdrop used to wrap the background and capture clicks (commonly used to close the modal). Accepts standard `div` props: `onClick`, `className`, `style`, etc.
+- `ModalWindow` — A styled window container used to render modal content. Accepts standard `div` props and prevents event propagation from clicks inside the window.
+
+Example usage:
+
+```tsx
+import { useStaticModal, ModalBackdrop, ModalWindow, BaseModalRenderer } from '@rokku-x/react-hook-modal';
+
+function BackdropExample() {
+  const [showModal, closeModal] = useStaticModal();
+
+  return (
+    <button onClick={() => showModal(
+      <ModalBackdrop onClick={closeModal}>
+        <ModalWindow>
+          <h2>Title</h2>
+          <p>Content inside modal window.</p>
+          <button onClick={closeModal}>Close</button>
+        </ModalWindow>
+      </ModalBackdrop>
+    )}>
+      Show Modal with Backdrop
+    </button>
+  )
+}
+```
+
+Using these helper components keeps modal markup consistent across your app and makes it easier to style/backdrop behavior.
+
 ### useStaticModal
 
 Hook for displaying static modal content (content set when the modal is opened).

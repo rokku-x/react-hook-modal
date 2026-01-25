@@ -9,7 +9,7 @@ export type RenderModalElementFn = (el: ReactNode) => ReactNode;
 /** Function returned by `useDynamicModal` to open the modal. */
 export type ShowDynamicModalFn = () => void;
 /** Function returned by `useDynamicModal` to close the modal. */
-export type CloseDynamicModalFn = () => void;
+export type CloseDynamicModalFn = () => boolean;
 /** Function returned by `useDynamicModal` to focus the modal to foreground. */
 export type FocusDynamicModalFn = () => boolean;
 /** Tuple returned by `useDynamicModal`. */

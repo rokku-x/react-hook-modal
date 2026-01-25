@@ -40,6 +40,8 @@ export interface BaseModalRendererProps {
      * @default true
      */
     disableBackgroundScroll?: boolean
+    /** Allow children in tests/examples */
+    children?: React.ReactNode
 }
 
 export default function BaseModalRenderer({ renderMode = RenderMode.STACKED, id, style, className, windowClassName, windowStyle, disableBackgroundScroll = true }: BaseModalRendererProps) {
@@ -49,6 +51,7 @@ export default function BaseModalRenderer({ renderMode = RenderMode.STACKED, id,
     const modalStack = Array.from(modalStackMap.values())
     const modalStackIds = Array.from(modalStackMap.keys());
     const wrapperIdFinal = id || 'base-modal-wrapper';
+    const prevActiveElement = useRef<HTMLElement | null>(null);
 
     useEffect(() => {
         if (store.getState().isMounted) throw new Error("Multiple BaseModalRenderer detected. Only one BaseModalRenderer is allowed at a time.");
@@ -60,14 +63,19 @@ export default function BaseModalRenderer({ renderMode = RenderMode.STACKED, id,
         }
     }, []);
 
+
     useEffect(() => {
         const lastModalId = modalStackIds[modalStackIds.length - 1];
         if (lastModalId !== undefined) {
+            prevActiveElement.current = document.activeElement as HTMLElement | null;
             dialogRef.current?.showModal();
             document.body.setAttribute('inert', 'true');
+            const el = modalWindowRefs.current.get(lastModalId);
+            if (el) el.focus();
         } else if (lastModalId === undefined) {
             dialogRef.current?.close();
             document.body.removeAttribute('inert');
+            prevActiveElement.current?.focus?.();
         }
 
     }, [currentModalId]);
@@ -90,9 +98,12 @@ export default function BaseModalRenderer({ renderMode = RenderMode.STACKED, id,
                         className={`modal-window ${windowClassName || ''}`}
                         id={modalStackIds[index]}
                         style={{ ...(windowStyle || {}) }}
-                        {...(currentModalId! !== modalStackIds[index] ? { inert: true } as any : {})}
-                        children={typeof modal === 'function' ? (modal as () => React.ReactNode | JSX.Element)() : modal}
-                    />
+                        tabIndex={-1}
+                        inert={currentModalId! !== modalStackIds[index]}
+                        aria-hidden={currentModalId! !== modalStackIds[index]}
+                    >
+                        {typeof modal === 'function' ? (modal as () => React.ReactNode | JSX.Element)() : modal}
+                    </div>
                 ));
             case RenderMode.CURRENT_ONLY:
                 return <div
@@ -101,9 +112,10 @@ export default function BaseModalRenderer({ renderMode = RenderMode.STACKED, id,
                     key={modalStackIds[modalStack.length - 1]}
                     className={`modal-window ${windowClassName || ''}`}
                     style={{ ...(windowStyle || {}) }}
-                    children={!modalStack[modalStack.length - 1][1] ? (typeof modalStack[modalStack.length - 1][0] === 'function' ? (modalStack[modalStack.length - 1][0] as () => React.ReactNode | JSX.Element)() : modalStack[modalStack.length - 1][0]) as React.ReactNode : null}
+                    tabIndex={-1}
+                    aria-hidden={false}
                 >
-
+                    {!modalStack[modalStack.length - 1][1] ? (typeof modalStack[modalStack.length - 1][0] === 'function' ? (modalStack[modalStack.length - 1][0] as () => React.ReactNode | JSX.Element)() : modalStack[modalStack.length - 1][0]) as React.ReactNode : null}
                 </div>
             case RenderMode.CURRENT_HIDDEN_STACK:
                 return (
@@ -117,7 +129,9 @@ export default function BaseModalRenderer({ renderMode = RenderMode.STACKED, id,
                                 ...(windowStyle || {}),
                                 visibility: currentModalId! === modalStackIds[index] ? 'visible' : 'hidden'
                             }}
-                            {...(currentModalId! !== modalStackIds[index] ? { inert: true } as any : {})}
+                            tabIndex={-1}
+                            inert={currentModalId! !== modalStackIds[index]}
+                            aria-hidden={currentModalId! !== modalStackIds[index]}
                         >
                             {!isDynamic ? (typeof modal === 'function' ? (modal as () => React.ReactNode | JSX.Element)() : modal) : null}
                         </div>
@@ -126,9 +140,10 @@ export default function BaseModalRenderer({ renderMode = RenderMode.STACKED, id,
         }
     }
 
+
     return modalStackIds.length === 0 ? null :
         <>
             {createPortal(<style>{`${disableBackgroundScroll ? `body:has(dialog#${wrapperIdFinal}[open]){overflow:hidden}body{scrollbar-gutter:stable}` : ''}dialog#${wrapperIdFinal}[open]{width:100vw;height:100vh;max-width:100%;max-height:100%}.modal-wrapper{border:none;padding:0;background:unset}.modal-window{display:block;position:absolute;width:100%;height:100%;backdrop-filter:blur(2px);background-color:rgba(0,0,0,.1)}`}</style>, document.head)}
-            {createPortal(<dialog ref={dialogRef} id={wrapperIdFinal} className={`modal-wrapper ${className || ''}`} style={style} children={render()} />, document.body)}
+            {createPortal(<dialog role="dialog" aria-modal="true" ref={dialogRef} id={wrapperIdFinal} className={`modal-wrapper ${className || ''}`} style={style} children={render()} />, document.body)}
         </>
 }

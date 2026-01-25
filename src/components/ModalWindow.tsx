@@ -5,7 +5,7 @@ export interface ModalWindowProps extends React.HTMLAttributes<HTMLDivElement> {
 
 }
 
-export default function ModalWindow({ className = "", style = {}, children }: ModalWindowProps) {
+export default function ModalWindow({ className = "", style = {}, children, ...rest }: ModalWindowProps) {
     return (
         <div
             className={`hook-modal-window ${className}`}
@@ -19,7 +19,9 @@ export default function ModalWindow({ className = "", style = {}, children }: Mo
                 position: "relative",
                 ...style,
             }}
+            tabIndex={-1}
             onClick={stopPropagation}
+            {...rest}
         >
             {children}
         </div>

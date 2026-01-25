@@ -10,7 +10,7 @@ describe('Library Load Time', () => {
         const t1 = performance.now()
 
         const t2 = performance.now()
-        const esm = await import('../../dist/index.esm.js')
+        const esm: any = await import('../../dist/index.esm.js')
         const t3 = performance.now()
 
         const cjsMs = (t1 - t0).toFixed(2)

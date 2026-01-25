@@ -87,9 +87,8 @@ export const useBaseModalStore = create<Store>()((set, get) => ({
     },
     actions: {
         pushModal: (modalId: string | undefined, el: AcceptableElement, isDynamic: boolean = false) => {
-            console.log(get())
             modalId = modalId ?? Math.random().toString(36).substring(2, 6);
-            if (!get().isMounted) console.error("BaseModalRenderer must be mounted before using.");
+            if (!get().isMounted) console.warn("BaseModalRenderer must be mounted before using. Please add <BaseModalRenderer /> to your component tree.");
             const modal = get().modalStackMap.get(modalId);
             if (modal !== undefined) {
                 get().actions.focusModal(modalId);

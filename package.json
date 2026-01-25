@@ -1,6 +1,6 @@
 {
   "name": "@rokku-x/react-hook-modal",
-  "version": "0.7.8",
+  "version": "0.7.9",
   "author": "rokku-x",
   "repository": {
     "type": "git",
@@ -38,7 +38,7 @@
   "bugs": {
     "url": "https://github.com/rokku-x/react-hook-modal/issues"
   },
-  "description": "A powerful and flexible React modal hook library that supports stacking and multi-window modals, with multiple rendering modes, dynamic and static modal support.",
+  "description": "A flexible React modal hook library that supports stacking and multi-window modals, with multiple rendering modes, dynamic and static modal support.",
   "files": [
     "dist",
     "README.md"
@@ -49,7 +49,14 @@
     "modal",
     "hook",
     "component",
-    "library"
+    "library",
+    "accessibility",
+    "a11y",
+    "zustand",
+    "typescript",
+    "modal-dialog",
+    "hooks",
+    "react-hooks"
   ],
   "license": "MIT",
   "publishConfig": {
@@ -62,7 +69,8 @@
     "prepare": "npm run build",
     "dev": "vite",
     "preview": "vite preview",
-    "test": "vitest"
+    "test": "vitest",
+    "typecheck": "tsc --noEmit"
   },
   "sideEffects": false,
   "types": "dist/index.d.ts",
