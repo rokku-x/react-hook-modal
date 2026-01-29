@@ -3,6 +3,7 @@ name: Publish to NPM
 on:
   release:
     types: [published]
+  workflow_call: {}
 
 permissions:
   id-token: write 
@@ -23,16 +24,30 @@ jobs:
           node-version: '24.x'
           registry-url: 'https://registry.npmjs.org/'
 
-      - name: Install dependencies
-        run: npm install
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1'
 
-      - name: Run tests
-        run: npm test -- --run
+      - name: Install dependencies (bun)
+        run: |
+          if [ -f bun.lockb ]; then
+            bun ci
+          else
+            bun install
+          fi
+
+      - name: Type check
+        run: bunx tsc --noEmit
+
+      - name: Run tests (bun)
+        run: bun run test -- --run
         env:
+          CI: true
           ROLLUP_SKIP_NATIVE: true
 
-      - name: Build
-        run: npm run build
+      - name: Build (bun)
+        run: bun run build
         env:
           ROLLUP_SKIP_NATIVE: true
 

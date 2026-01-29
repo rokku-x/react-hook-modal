@@ -37,7 +37,6 @@ export default defineConfig({
         rollupOptions: {
             external: ['react', 'react-dom', 'react/jsx-runtime', ...Object.keys(pkg.peerDependencies || {})],
             output: {
-                banner: "'use client'",
                 globals: {
                     react: 'React',
                     'react-dom': 'ReactDOM',

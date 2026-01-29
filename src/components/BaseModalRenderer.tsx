@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useMemo } from "react";
 import { RenderMode, useBaseModalInternal } from "@/hooks/useBaseModal";
 import { createPortal } from "react-dom";
 
@@ -48,8 +48,8 @@ export default function BaseModalRenderer({ renderMode = RenderMode.STACKED, id,
     const dialogRef = useRef<HTMLDialogElement>(null);
     const modalWindowRefs = useRef<Map<string, HTMLDivElement>>(new Map());
     const { setIsMounted, setModalWindowRefRef, modalStackMap, currentModalId, store } = useBaseModalInternal();
-    const modalStack = Array.from(modalStackMap.values())
-    const modalStackIds = Array.from(modalStackMap.keys());
+    const modalStack = useMemo(() => Array.from(modalStackMap.values()), [modalStackMap]);
+    const modalStackIds = useMemo(() => Array.from(modalStackMap.keys()), [modalStackMap]);
     const wrapperIdFinal = id || 'base-modal-wrapper';
     const prevActiveElement = useRef<HTMLElement | null>(null);
 
@@ -88,7 +88,7 @@ export default function BaseModalRenderer({ renderMode = RenderMode.STACKED, id,
         }
     }, []);
 
-    const render = () => {
+    const renderContent = useMemo(() => {
         switch (renderMode) {
             case RenderMode.STACKED:
                 return modalStack.map(([modal, isDynamic], index) => (
@@ -137,13 +137,15 @@ export default function BaseModalRenderer({ renderMode = RenderMode.STACKED, id,
                         </div>
                     ))
                 );
+            default:
+                return null;
         }
-    }
+    }, [renderMode, modalStack, modalStackIds, currentModalId, windowClassName, windowStyle, refCallback]);
 
 
     return modalStackIds.length === 0 ? null :
         <>
             {createPortal(<style>{`${disableBackgroundScroll ? `body:has(dialog#${wrapperIdFinal}[open]){overflow:hidden}body{scrollbar-gutter:stable}` : ''}dialog#${wrapperIdFinal}[open]{width:100vw;height:100vh;max-width:100%;max-height:100%}.modal-wrapper{border:none;padding:0;background:unset}.modal-window{display:block;position:absolute;width:100%;height:100%;backdrop-filter:blur(2px);background-color:rgba(0,0,0,.1)}`}</style>, document.head)}
-            {createPortal(<dialog role="dialog" aria-modal="true" ref={dialogRef} id={wrapperIdFinal} className={`modal-wrapper ${className || ''}`} style={style} children={render()} />, document.body)}
+            {createPortal(<dialog role="dialog" aria-modal="true" ref={dialogRef} id={wrapperIdFinal} className={`modal-wrapper ${className || ''}`} style={style} children={renderContent} />, document.body)}
         </>
 }

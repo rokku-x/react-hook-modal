@@ -3,13 +3,19 @@ name: CI
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    paths:
+      - 'src/**'
+      - 'tsconfig.json'
+      - 'vitest.config.ts'
+      - '.github/workflows/**'
+  workflow_dispatch: {}
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        node-version: [20]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -17,22 +23,41 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: ${{ matrix.node-version }}
 
-      - name: Install dependencies
-        run: npm install
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1'
 
-      - name: Typecheck
-        run: npm run typecheck
+      - name: Cache bun
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun
+            ~/.cache/bun
+          key: ${{ runner.os }}-bun-${{ matrix.node-version }}-${{ hashFiles('bun.lockb') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-${{ matrix.node-version }}-
+
+      - name: Install dependencies (bun)
+        run: |
+          if [ -f bun.lockb ]; then
+            bun ci
+          else
+            bun install
+          fi
+
+      - name: Type check
+        run: bunx tsc --noEmit
+
+      - name: Run tests (bun)
+        run: bun run test -- --run
         env:
+          CI: true
           ROLLUP_SKIP_NATIVE: true
 
-      - name: Run tests
-        run: npm test -- --run
-        env:
-          ROLLUP_SKIP_NATIVE: true
-
-      - name: Build
-        run: npm run build
+      - name: Build (bun)
+        run: bun run build
         env:
           ROLLUP_SKIP_NATIVE: true
