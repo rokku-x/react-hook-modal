@@ -152,21 +152,70 @@ Hook for displaying static modal content (content set when the modal is opened).
 #### Returns
 
 ```typescript
-[showModal, closeModal, id, updateModalContent]
+[showModal, closeModal, focus, updateModalContent, id]
 ```
 
 | Return Value | Type | Description |
 |---|---|---|
-| `showModal` | `(el?: AcceptableElement) => () => boolean` | Function to display the modal with content |
-| `closeModal` | `() => boolean` | Function to close the modal |
-| `id` | `string` | Unique identifier for this modal instance |
-| `updateModalContent` | `(newContent: AcceptableElement) => void` | Update modal content without closing |
+| `showModal(el?: AcceptableElement, id?: string)` | `(el?: AcceptableElement, id?: string) => string` | Show a modal and target/reopen an instance with the provided `id`. Passing the same `id` will update/replace that instance. Returns the hook's id. |
+| `showModal(el?: AcceptableElement, createNew?: boolean)` | `(el?: AcceptableElement, createNew?: boolean) => string` | Show a modal and create a new unique instance when `createNew === true`. Omit or pass `false` to use the hook's own id (single-instance default). Returns the hook's id. |
+| `closeModal` | `(customId?: string) => boolean` | Close the given modal instance (defaults to the hook's id) |
+| `focus` | `(customId?: string) => boolean` | Bring the given modal to the foreground (defaults to the hook's id) |
+| `updateModalContent` | `(newContent: AcceptableElement, customId?: string) => boolean` | Update the content of the specified modal instance without closing |
+| `id` | `string` | Unique identifier assigned to this hook instance |
 
 #### Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `element` | `AcceptableElement` | `undefined` | Default content to display if `showModal` is called without arguments |
+
+> 💡 Tip: You can now open multiple instances from a single `useStaticModal` hook by passing a custom id or `true` to `showModal`. Passing the same custom id will update/replace that instance instead of creating a new one.
+
+#### Overloads & instance control
+
+- `showModal(el?: AcceptableElement, id?: string)` — Open or target a named instance. Passing the same `id` will update/replace that instance.
+- `showModal(el?: AcceptableElement, createNew?: boolean)` — Pass `true` to create a new unique instance each call. Omit or pass `false` to use the hook's own (single) id.
+
+Examples:
+
+```tsx
+const [showModal, closeModal, focus, updateModalContent, id] = useStaticModal()
+
+// Use hook id (single-instance)
+showModal(<div>Default</div>)
+
+// Create a unique one-off instance
+const oneOffHookId = showModal(<div>One-off</div>, true)
+console.log('one-off created by hook id:', oneOffHookId)
+
+// Open or update a named instance
+const myModalHookId = showModal(<div>Named</div>, 'my-modal')
+console.log('named instance hook id (always hook id):', myModalHookId)
+
+// Update a named instance's content later
+updateModalContent(<div>Updated</div>, 'my-modal')
+
+// Close a named instance
+closeModal('my-modal')
+```
+
+> Note: `showModal` returns the hook's `id` (string) — the generated or hook id, not a close function.
+
+### Migration (from older versions)
+
+If you used the old return signature or relied on `showModal` returning a close function, update your code as follows:
+
+```diff
+- const [show, close, focus] = useStaticModal()
+- const closeFn = show(<div>Hi</div>)
++ const [show, close, focus, updateModalContent, id] = useStaticModal()
++ const hookId = show(<div>Hi</div>) // returns hook id string
++ // for one-off instances use: show(<div>One-off</div>, true)
++ // for named instances use: show(<div>Named</div>, 'custom-id')
+```
+
+The new overloads also allow opening multiple live static instances via custom ids or `true` for one-off instances.
 
 ### useDynamicModal
 
@@ -366,7 +415,7 @@ import { useStaticModal, BaseModalRenderer } from 'react-hook-modal';
 import { useState } from 'react';
 
 function UpdateableModalExample() {
-  const [showModal, closeModal, modalId, updateModalContent] = useStaticModal();
+  const [showModal, closeModal, focus, updateModalContent, modalId] = useStaticModal();
   const [step, setStep] = useState(0);
   
   const openWizard = () => {
@@ -524,6 +573,116 @@ function App() {
   );
 }
 ```
+
+// Example 5b: Multiple instances from a single hook (custom id / new instances)
+
+function MultipleInstancesExample() {
+  const [showModal, closeModal] = useStaticModal();
+
+  const openTwoDifferent = () => {
+    // Use custom ids to open/target distinct modal instances
+    showModal(
+      <div style={{ padding: '20px', background: 'white', borderRadius: '8px', maxWidth: '400px' }}>
+        <h2>First modal</h2>
+        <p>A modal opened using a custom id.</p>
+        <button onClick={closeModal}>Close</button>
+      </div>,
+      'first-modal'
+    );
+
+    showModal(
+      <div style={{ padding: '20px', background: '#f6f6f6', borderRadius: '8px', maxWidth: '400px' }}>
+        <h2>Second modal</h2>
+        <p>Another modal opened with a different id.</p>
+        <button onClick={closeModal}>Close</button>
+      </div>,
+      'second-modal'
+    );
+  };
+
+  const openOneOff = () => {
+    // Pass `true` to create a new unique instance each time
+    showModal(
+      <div style={{ padding: '20px', background: 'white', borderRadius: '8px', maxWidth: '400px' }}>
+        <h2>One-off</h2>
+        <p>This creates a unique instance every time (pass `true`).</p>
+        <button onClick={closeModal}>Close</button>
+      </div>,
+      true
+    );
+  };
+
+  return (
+    <>
+      <button onClick={openTwoDifferent}>Open Two Different Modals</button>
+      <button onClick={openOneOff}>Open One-off Modal</button>
+    </>
+  );
+}
+
+### Example 5c: Named & One-off Instances (useStaticModal)
+
+```tsx
+import { useStaticModal, BaseModalRenderer } from '@rokku-x/react-hook-modal';
+
+function MultipleInstancesAdvanced() {
+  const [showModal, closeModal, focus, updateModalContent, id] = useStaticModal();
+
+  const openNamed = () => {
+    // Open/replace a named instance called 'named-a'
+    showModal(
+      <div style={{ padding: '20px', background: 'white' }}>
+        <h2>Named A</h2>
+        <p>This modal is opened with a custom id ('named-a').</p>
+        <button onClick={() => closeModal('named-a')}>Close Named A</button>
+      </div>,
+      'named-a'
+    );
+  };
+
+  const openOneOff = () => {
+    // Create a one-off unique instance each time by passing `true`
+    const oneOffHookId = showModal(
+      <div style={{ padding: '20px', background: '#f7f7f7' }}>
+        <h2>One-off</h2>
+        <p>This instance is unique every call (created by passing <code>true</code>).</p>
+      </div>,
+      true
+    );
+    console.log('one-off created by hook id:', oneOffHookId);
+  };
+
+  const updateNamed = () => {
+    updateModalContent(
+      <div style={{ padding: '20px', background: 'white' }}>
+        <h2>Named A (Updated)</h2>
+        <p>Content was updated programmatically via <code>updateModalContent</code>.</p>
+      </div>,
+      'named-a'
+    );
+  };
+
+  return (
+    <div style={{ display: 'flex', gap: 8 }}>
+      <button onClick={openNamed}>Open/Update Named A</button>
+      <button onClick={openOneOff}>Open One-off</button>
+      <button onClick={updateNamed}>Update Named A</button>
+      <div style={{ alignSelf: 'center', marginLeft: 12, color: '#666' }}>hook id: <code>{id}</code></div>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <>
+      <MultipleInstancesAdvanced />
+      <BaseModalRenderer />
+    </>
+  );
+}
+```
+
+> This example shows how to open named instances (by passing a string id) and how to create one-off unique instances (by passing `true`). It also demonstrates using the returned `id` for reference in your UI.
 
 ### Example 6: Custom Styling
 

@@ -2,24 +2,34 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { renderHook, act, render } from '@testing-library/react'
 import BaseModalRenderer from '@/components/BaseModalRenderer'
 import useStaticModal from '../useStaticModal'
-import useBaseModal from '@/hooks/useBaseModal'
+import useBaseModal, { useBaseModalInternal } from '@/hooks/useBaseModal'
 
 describe('useStaticModal', () => {
     beforeEach(() => {
+        // Reset base modal internal store to ensure test isolation
+        const { result } = renderHook(() => useBaseModalInternal())
+        act(() => {
+            result.current.store.setState({
+                modalStackMap: new Map(),
+                currentModalId: undefined,
+                isMounted: false,
+                modalWindowRefs: undefined,
+            } as any)
+        })
         render(<BaseModalRenderer />)
     })
-    it('should return showModal, closeModal, focus, id, and updateModalContent', () => {
+    it('should return showModal, closeModal, focus, updateModalContent, and id', () => {
         const { result } = renderHook(() => useStaticModal())
 
         expect(result.current).toHaveLength(5)
         expect(typeof result.current[0]).toBe('function') // showModal
         expect(typeof result.current[1]).toBe('function') // closeModal
         expect(typeof result.current[2]).toBe('function') // focus
-        expect(typeof result.current[3]).toBe('string') // id
-        expect(typeof result.current[4]).toBe('function') // updateModalContent
+        expect(typeof result.current[3]).toBe('function') // updateModalContent
+        expect(typeof result.current[4]).toBe('string') // id
     })
 
-    it('should show modal with provided content', () => {
+    it('should show modal with provided content and return hook id', () => {
         const { result } = renderHook(() => useStaticModal())
         const [showModal] = result.current
 
@@ -28,7 +38,8 @@ describe('useStaticModal', () => {
             returnValue = showModal('Test Content')
         })
 
-        expect(typeof returnValue).toBe('function')
+        expect(typeof returnValue).toBe('string')
+        expect(returnValue).toBe(result.current[4])
     })
 
     it('should show default content when provided to hook', () => {
@@ -42,6 +53,39 @@ describe('useStaticModal', () => {
 
         // Should not throw
         expect(result.current[0]).toBeDefined()
+    })
+
+    it('should create a new unique instance when passing true', () => {
+        const { result } = renderHook(() => useStaticModal())
+        const { result: baseResult } = renderHook(() => useBaseModalInternal())
+        const [showModal, , , , id] = result.current
+
+        act(() => {
+            showModal('One-off', true)
+        })
+
+        expect(baseResult.current.modalStackMap.size).toBe(1)
+        const keys = Array.from(baseResult.current.modalStackMap.keys())
+        expect(keys[0]).not.toBe(id)
+    })
+
+    it('should open and replace an instance when using a custom id', () => {
+        const { result } = renderHook(() => useStaticModal())
+        const { result: baseResult } = renderHook(() => useBaseModalInternal())
+        const [showModal] = result.current
+
+        act(() => {
+            showModal('First', 'custom-1')
+        })
+
+        expect(baseResult.current.modalStackMap.has('custom-1')).toBe(true)
+        expect(baseResult.current.modalStackMap.size).toBe(1)
+
+        act(() => {
+            showModal('Updated', 'custom-1')
+        })
+
+        expect(baseResult.current.modalStackMap.size).toBe(1)
     })
 
     it('should show provided content over default content', () => {
@@ -75,8 +119,8 @@ describe('useStaticModal', () => {
     it('should focus modal to foreground', () => {
         const { result: result1 } = renderHook(() => useStaticModal())
         const { result: result2 } = renderHook(() => useStaticModal())
-        const [showModal1, , focus1, id1] = result1.current
-        const [showModal2, , , id2] = result2.current
+        const [showModal1, , focus1, , id1] = result1.current
+        const [showModal2, , , , id2] = result2.current
 
         // Open both modals
         act(() => {
@@ -102,15 +146,15 @@ describe('useStaticModal', () => {
         const { result: result1 } = renderHook(() => useStaticModal())
         const { result: result2 } = renderHook(() => useStaticModal())
 
-        const id1 = result1.current[3]
-        const id2 = result2.current[3]
+        const id1 = result1.current[4]
+        const id2 = result2.current[4]
 
         expect(id1).not.toBe(id2)
     })
 
     it('should update modal content', () => {
         const { result } = renderHook(() => useStaticModal())
-        const [showModal, , , , updateModalContent] = result.current
+        const [showModal, , , updateModalContent] = result.current
 
         act(() => {
             showModal('Initial Content')
@@ -121,7 +165,7 @@ describe('useStaticModal', () => {
         })
 
         // Should not throw
-        expect(result.current[3]).toBeDefined()
+        expect(result.current[4]).toBeDefined()
     })
 
     it('should support function content', () => {
@@ -240,7 +284,7 @@ describe('useStaticModal - Negative Tests', () => {
 
     it('should return false when updating content on non-existent modal', () => {
         const { result } = renderHook(() => useStaticModal())
-        const [, , , , updateModalContent] = result.current
+        const [, , , updateModalContent] = result.current
 
         let updateResult
         act(() => {
@@ -299,7 +343,7 @@ describe('useStaticModal - Negative Tests', () => {
 
         // Should push undefined content
         const { result: baseResult } = renderHook(() => useBaseModal())
-        const modal = baseResult.current.getModal(result.current[3])
+        const modal = baseResult.current.getModal(result.current[4])
         expect(modal?.[0]).toBeUndefined()
     })
 

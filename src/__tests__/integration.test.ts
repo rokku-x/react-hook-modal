@@ -27,7 +27,7 @@ describe('Integration Tests - Modal Hooks', () => {
             const { result: baseResult } = renderHook(() => useBaseModalInternal())
             const { result: staticResult } = renderHook(() => useStaticModal())
 
-            const [showModal, closeModal, , id] = staticResult.current
+            const [showModal, closeModal, , , id] = staticResult.current
 
             act(() => {
                 showModal('Test Content')
@@ -67,7 +67,7 @@ describe('Integration Tests - Modal Hooks', () => {
             const { result: baseResult } = renderHook(() => useBaseModalInternal())
             const { result: staticResult } = renderHook(() => useStaticModal())
 
-            const [showModal, , , , updateModalContent] = staticResult.current
+            const [showModal, , , updateModalContent] = staticResult.current
 
             act(() => {
                 showModal('Initial Content')
@@ -199,7 +199,7 @@ describe('Integration Tests - Modal Hooks', () => {
             })
 
             expect(baseResult.current.modalStackMap.size).toBe(1)
-            expect(baseResult.current.currentModalId).toBe(static1.current[3])
+            expect(baseResult.current.currentModalId).toBe(static1.current[4])
         })
     })
 
@@ -233,7 +233,7 @@ describe('Integration Tests - Modal Hooks', () => {
             expect(baseResult.current.modalStackMap.size).toBe(2)
 
             act(() => {
-                static1.current[4]('Updated Modal 1') // updateModalContent
+                static1.current[3]('Updated Modal 1') // updateModalContent
             })
 
             expect(baseResult.current.modalStackMap.size).toBe(2)
@@ -249,8 +249,8 @@ describe('Integration Tests - Modal Hooks', () => {
                 static2.current[0]('Modal 2')
             })
 
-            const id1 = static1.current[3]
-            const id2 = static2.current[3]
+            const id1 = static1.current[4]
+            const id2 = static2.current[4]
 
             const { result: actionsResult } = renderHook(() => useBaseModal())
             act(() => {

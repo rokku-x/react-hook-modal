@@ -89,6 +89,7 @@ export default function BaseModalRenderer({ renderMode = RenderMode.STACKED, id,
     }, []);
 
     const renderContent = useMemo(() => {
+        if (modalStack.length === 0) return null;
         switch (renderMode) {
             case RenderMode.STACKED:
                 return modalStack.map(([modal, isDynamic], index) => (

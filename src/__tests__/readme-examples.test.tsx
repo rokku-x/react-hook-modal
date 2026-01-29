@@ -25,7 +25,7 @@ beforeEach(() => {
 
 // Example 1: Basic Static Modal
 function BasicModalExample() {
-    const [showModal, closeModal] = useStaticModal()
+    const [showModal, closeModal, , , id] = useStaticModal()
     return (
         <button onClick={() => showModal(
             <div>
@@ -100,7 +100,7 @@ function ConfirmationExample() {
 
 // Example 3: Update Modal Content (wizard)
 function UpdateableModalExample() {
-    const [showModal, closeModal, , , updateModalContent] = useStaticModal()
+    const [showModal, closeModal, , updateModalContent] = useStaticModal()
     const renderStep = (stepNum: number) => (
         <div>
             <h2>Step {stepNum + 1} of 3</h2>
@@ -166,6 +166,51 @@ function StackedModalsExample() {
         )
     }
     return <button onClick={openFirstModal}>Open Stacked Modals</button>
+}
+
+// Example 5b: Multiple instances from a single hook (custom id / new instances)
+function MultipleInstancesExample() {
+    const [showModal, closeModal] = useStaticModal()
+
+    const openTwoDifferent = () => {
+        // Use custom ids to open/target distinct modal instances
+        showModal(
+            <div>
+                <h2>First modal</h2>
+                <p>A modal opened using a custom id.</p>
+                <button onClick={closeModal}>Close</button>
+            </div>,
+            'first-modal'
+        )
+
+        showModal(
+            <div>
+                <h2>Second modal</h2>
+                <p>Another modal opened with a different id.</p>
+                <button onClick={closeModal}>Close</button>
+            </div>,
+            'second-modal'
+        )
+    }
+
+    const openOneOff = () => {
+        // Pass `true` to create a new unique instance each time
+        showModal(
+            <div>
+                <h2>One-off</h2>
+                <p>This creates a unique instance every time (pass `true`).</p>
+                <button onClick={closeModal}>Close</button>
+            </div>,
+            true
+        )
+    }
+
+    return (
+        <>
+            <button onClick={openTwoDifferent}>Open Two Different Modals</button>
+            <button onClick={openOneOff}>Open One-off Modal</button>
+        </>
+    )
 }
 
 // Example 6: Custom Styling
@@ -258,6 +303,21 @@ describe('README Examples', () => {
         await userEvent.click(screen.getByText('Close This Modal'))
         expect(screen.queryByText('Second Modal')).toBeNull()
         expect(screen.getByText('First Modal')).toBeTruthy()
+    })
+
+    it('Example 5b: Multiple instances (custom id & one-off)', async () => {
+        render(<><MultipleInstancesExample /><BaseModalRenderer renderMode={RenderMode.STACKED} /></>)
+
+        // Open two distinct named modals
+        await userEvent.click(screen.getByText('Open Two Different Modals'))
+        expect(screen.getByText('First modal')).toBeTruthy()
+        expect(screen.getByText('Second modal')).toBeTruthy()
+
+        // Open a one-off modal (true)
+        await userEvent.click(screen.getByText('Open One-off Modal'))
+        // There should be at least three modal windows present
+        const wins = document.body.querySelectorAll('.modal-window')
+        expect(wins.length).toBeGreaterThanOrEqual(3)
     })
 
     it('Example 6: Custom Styling applies classes', async () => {
