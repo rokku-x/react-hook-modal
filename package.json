@@ -17,6 +17,7 @@
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "@vitejs/plugin-react": "^5.0.4",
+    "clean-package": "^2.2.0",
     "jsdom": "^27.4.0",
     "typescript": "^5.0.0",
     "vite": "^7.1.9",
@@ -68,6 +69,8 @@
     "build": "vite build",
     "publish:first": "npm publish --access public --provenance false",
     "prepare": "npm run build",
+    "prepack": "clean-package",
+    "postpack": "clean-package restore",
     "dev": "vite",
     "preview": "vite preview",
     "test": "vitest",
@@ -75,6 +78,22 @@
     "changeset": "changeset",
     "version:changeset": "changeset version",
     "publish:changeset": "changeset publish --access public"
+  },
+  "clean-package": {
+    "remove": [
+      "devDependencies",
+      "scripts",
+      "tests",
+      "playwright.config.ts",
+      "tsconfig.json",
+      ".npmignore",
+      ".gitignore",
+      ".vscode",
+      "screenshots",
+      ".changeset",
+      "publishConfig",
+      "clean-package"
+    ]
   },
   "sideEffects": false,
   "types": "dist/index.d.ts",

@@ -1,0 +1,2 @@
+# exclude backup files created by clean-package
+*.backup
