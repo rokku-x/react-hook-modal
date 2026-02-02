@@ -1,6 +1,6 @@
 # react-hook-modal
 
-[![CI](https://github.com/rokku-x/react-hook-dialog/actions/workflows/ci.yml/badge.svg)](https://github.com/rokku-x/react-hook-dialog/actions/workflows/ci.yml)[![npm version](https://img.shields.io/npm/v/@rokku-x/react-hook-modal.svg)](https://www.npmjs.com/package/@rokku-x/react-hook-modal)[![build](https://github.com/rokku-x/react-hook-modal/actions/workflows/ci.yml/badge.svg)](https://github.com/rokku-x/react-hook-modal/actions) [![license](https://img.shields.io/npm/l/@rokku-x/react-hook-modal.svg)](LICENSE) [![downloads](https://img.shields.io/npm/dm/@rokku-x/react-hook-modal.svg)](https://www.npmjs.com/package/@rokku-x/react-hook-modal) ![TS](https://img.shields.io/badge/TS-%E2%9C%93-blue)
+[![CI](https://github.com/rokku-x/react-hook-dialog/actions/workflows/ci.yml/badge.svg)](https://github.com/rokku-x/react-hook-dialog/actions/workflows/ci.yml) [![npm version](https://img.shields.io/npm/v/@rokku-x/react-hook-modal.svg)](https://www.npmjs.com/package/@rokku-x/react-hook-modal) [![build](https://github.com/rokku-x/react-hook-modal/actions/workflows/ci.yml/badge.svg)](https://github.com/rokku-x/react-hook-modal/actions) [![license](https://img.shields.io/npm/l/@rokku-x/react-hook-modal.svg)](LICENSE) [![downloads](https://img.shields.io/npm/dm/@rokku-x/react-hook-modal.svg)](https://www.npmjs.com/package/@rokku-x/react-hook-modal) ![TS](https://img.shields.io/badge/TS-%E2%9C%93-blue)
 
 A powerful and flexible React modal hook library that supports stacking and multi-window modals, with multiple rendering modes, dynamic and static modal support, and zero dependencies (except React and Zustand).
 
@@ -19,34 +19,6 @@ npm install @rokku-x/react-hook-modal
 - 📦 **TypeScript Support** - Full type safety out of the box
 - 🎨 **Customizable Styling** - Extensive styling props for complete control
 - ♿ **Accessibility** - Built-in support for scroll prevention and inert attribute
-- 📱 **Zero Dependencies** - Only requires React and Zustand
-
-## Bundle Size
-
-- ESM: ~2.42 kB gzipped (7.64 kB raw)
-- CJS: ~2.11 kB gzipped (5.72 kB raw)
-
-Measured with Vite build for v0.7.1.
-
-## Runtime Performance
-
-Measured locally (jsdom, React 18, macOS) using a microbenchmark:
-- Push/Pop: ~7.6 µs per op
-- Update Content: ~2.6 µs per op
-- Focus Modal: ~1.1 µs per op
-- Dynamic Portal Render: ~0.5 µs per call
-
-Notes:
-- Numbers are approximate and depend on device/load.
-- Portal render figures reflect the cost of creating the portal when the modal window ref exists.
-
-## Library Load Time
-
-Measured in Node (dynamic import/require):
-- CJS require: ~16.0 ms
-- ESM import: ~20.5 ms
-
-See perf harnesses under `src/__tests__/perf.test.ts` and `src/__tests__/perf-load.test.ts`.
 
 ## Quick Start
 
@@ -263,7 +235,7 @@ Low-level hook for direct modal store access. Used internally by other hooks.
 ### Example 1: Basic Static Modal
 
 ```tsx
-import { useStaticModal, BaseModalRenderer } from '@rokku-x/react-hook-modal';
+import { useStaticModal, BaseModalRenderer, ModalBackdrop, ModalWindow } from '@rokku-x/react-hook-modal';
 
 function App() {
   return (
@@ -279,11 +251,13 @@ function BasicModalExample() {
   
   return (
     <button onClick={() => showModal(
-      <div style={{ padding: '20px', background: 'white', borderRadius: '8px' }}>
-        <h2>Welcome</h2>
-        <p>This is a basic modal example.</p>
-        <button onClick={closeModal}>Close</button>
-      </div>
+      <ModalBackdrop onClick={closeModal}>
+        <ModalWindow style={{ padding: '20px', background: 'white', borderRadius: '8px' }}>
+          <h2>Welcome</h2>
+          <p>This is a basic modal example.</p>
+          <button onClick={closeModal}>Close</button>
+        </ModalWindow>
+      </ModalBackdrop>
     )}>
       Show Modal
     </button>
@@ -291,20 +265,24 @@ function BasicModalExample() {
 }
 ```
 
+<p><a href="https://jgd.qzz.io/screenshots/react-hook-modal-example-1.png"><img src="https://jgd.qzz.io/screenshots/react-hook-modal-example-1.png" alt="Example 1 screenshot" width="500" height="300"/></a></p>
+
 ### Example 1b: useStaticModal - Content in Hook Parameter
 
 Pass the modal content directly to the `useStaticModal` hook. Call `showModal()` without arguments to display it.
 
 ```tsx
-import { useStaticModal, BaseModalRenderer } from '@rokku-x/react-hook-modal';
+import { useStaticModal, BaseModalRenderer, ModalBackdrop, ModalWindow } from '@rokku-x/react-hook-modal';
 
 function WelcomeModal() {
   const [showModal, closeModal] = useStaticModal(
-    <div style={{ padding: '20px', background: 'white', borderRadius: '8px' }}>
-      <h2>Welcome</h2>
-      <p>This modal content is defined in the hook parameter.</p>
-      <button onClick={closeModal}>Close</button>
-    </div>
+    <ModalBackdrop>
+      <ModalWindow style={{ padding: '20px', background: 'white', borderRadius: '8px' }}>
+        <h2>Welcome</h2>
+        <p>This modal content is defined in the hook parameter.</p>
+        <button onClick={closeModal}>Close</button>
+      </ModalWindow>
+    </ModalBackdrop>
   );
   
   return <button onClick={showModal}>Show Welcome Modal</button>;
@@ -320,33 +298,39 @@ function App() {
 }
 ```
 
+<p><a href="https://jgd.qzz.io/screenshots/react-hook-modal-example-2.png"><img src="https://jgd.qzz.io/screenshots/react-hook-modal-example-2.png" alt="Example 1b screenshot" width="500" height="300"/></a></p>
+
 ### Example 1c: useStaticModal - Content in showModal Call
 
 Pass the modal content when calling `showModal()`. This approach is more flexible for dynamic content.
 
 ```tsx
-import { useStaticModal, BaseModalRenderer } from '@rokku-x/react-hook-modal';
+import { useStaticModal, BaseModalRenderer, ModalBackdrop, ModalWindow } from '@rokku-x/react-hook-modal';
 
 function DynamicContentModal() {
   const [showModal, closeModal] = useStaticModal();
   
   const showWelcome = () => {
     showModal(
-      <div style={{ padding: '20px', background: 'white', borderRadius: '8px' }}>
-        <h2>Welcome</h2>
-        <p>This modal content is provided when calling showModal().</p>
-        <button onClick={closeModal}>Close</button>
-      </div>
+      <ModalBackdrop onClick={closeModal}>
+        <ModalWindow style={{ padding: '20px', background: 'white', borderRadius: '8px' }}>
+          <h2>Welcome</h2>
+          <p>This modal content is provided when calling showModal().</p>
+          <button onClick={closeModal}>Close</button>
+        </ModalWindow>
+      </ModalBackdrop>
     );
   };
   
   const showGoodbye = () => {
     showModal(
-      <div style={{ padding: '20px', background: 'white', borderRadius: '8px' }}>
-        <h2>Goodbye</h2>
-        <p>Different content can be shown by calling showModal with different content.</p>
-        <button onClick={closeModal}>Close</button>
-      </div>
+      <ModalBackdrop onClick={closeModal}>
+        <ModalWindow style={{ padding: '20px', background: 'white', borderRadius: '8px' }}>
+          <h2>Goodbye</h2>
+          <p>Different content can be shown by calling showModal with different content.</p>
+          <button onClick={closeModal}>Close</button>
+        </ModalWindow>
+      </ModalBackdrop>
     );
   };
   
@@ -368,32 +352,36 @@ function App() {
 }
 ```
 
+<p><a href="https://jgd.qzz.io/screenshots/react-hook-modal-example-3.png"><img src="https://jgd.qzz.io/screenshots/react-hook-modal-example-3.png" alt="Example 1c screenshot" width="500" height="300"/></a></p>
+
 ### Example 2: Confirmation Dialog
 
 ```tsx
-import { useStaticModal, BaseModalRenderer } from '@rokku-x/react-hook-modal';
+import { useStaticModal, BaseModalRenderer, ModalBackdrop, ModalWindow } from '@rokku-x/react-hook-modal';
 
 function ConfirmationExample() {
   const [showModal, closeModal] = useStaticModal();
   
   const handleDelete = () => {
     showModal(
-      <div style={{ padding: '20px', background: 'white', borderRadius: '8px', maxWidth: '400px' }}>
-        <h2>Confirm Delete</h2>
-        <p>Are you sure you want to delete this item?</p>
-        <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-          <button onClick={closeModal}>Cancel</button>
-          <button 
-            onClick={() => {
-              console.log('Deleted!');
-              closeModal();
-            }}
-            style={{ background: '#dc3545', color: 'white' }}
-          >
-            Delete
-          </button>
-        </div>
-      </div>
+      <ModalBackdrop onClick={closeModal}>
+        <ModalWindow style={{ padding: '20px', background: 'white', borderRadius: '8px', maxWidth: '400px' }}>
+          <h2>Confirm Delete</h2>
+          <p>Are you sure you want to delete this item?</p>
+          <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+            <button onClick={closeModal}>Cancel</button>
+            <button 
+              onClick={() => {
+                console.log('Deleted!');
+                closeModal();
+              }}
+              style={{ background: '#dc3545', color: 'white' }}
+            >
+              Delete
+            </button>
+          </div>
+        </ModalWindow>
+      </ModalBackdrop>
     );
   };
   
@@ -410,10 +398,12 @@ function App() {
 }
 ```
 
+<p><a href="https://jgd.qzz.io/screenshots/react-hook-modal-example-4.png"><img src="https://jgd.qzz.io/screenshots/react-hook-modal-example-4.png" alt="Example 2 screenshot" width="500" height="300"/></a></p>
+
 ### Example 3: Update Modal Content
 
 ```tsx
-import { useStaticModal, BaseModalRenderer } from 'react-hook-modal';
+import { useStaticModal, BaseModalRenderer, ModalBackdrop, ModalWindow } from '@rokku-x/react-hook-modal';
 import { useState } from 'react';
 
 function UpdateableModalExample() {
@@ -422,11 +412,17 @@ function UpdateableModalExample() {
   
   const openWizard = () => {
     setStep(0);
-    showModal(renderStep(0));
+    showModal(
+      <ModalBackdrop>
+        <ModalWindow style={{ padding: '20px', background: 'white', borderRadius: '8px', maxWidth: '500px' }}>
+          {renderStep(0)}
+        </ModalWindow>
+      </ModalBackdrop>
+    );
   };
   
   const renderStep = (stepNum: number) => (
-    <div style={{ padding: '20px', background: 'white', borderRadius: '8px', maxWidth: '500px' }}>
+    <div>
       <h2>Step {stepNum + 1} of 3</h2>
       <p>This is step {stepNum + 1} content.</p>
       <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
@@ -471,10 +467,12 @@ function App() {
 }
 ```
 
+<p><a href="https://jgd.qzz.io/screenshots/react-hook-modal-example-5.png"><img src="https://jgd.qzz.io/screenshots/react-hook-modal-example-5.png" alt="Example 3 screenshot" width="500" height="300"/></a></p>
+
 ### Example 4: Dynamic Modal with Form
 
 ```tsx
-import { useDynamicModal, BaseModalRenderer } from '@rokku-x/react-hook-modal';
+import { useDynamicModal, BaseModalRenderer, ModalBackdrop, ModalWindow } from '@rokku-x/react-hook-modal';
 import { useState } from 'react';
 
 function FormModal() {
@@ -492,27 +490,31 @@ function FormModal() {
   };
   
   const modalContent = (
-    <form onSubmit={handleSubmit} style={{ padding: '20px', background: 'white', borderRadius: '8px', maxWidth: '400px' }}>
-      <h2>Contact Form</h2>
-      <input
-        type="text"
-        placeholder="Name"
-        value={formData.name}
-        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-        style={{ width: '100%', marginBottom: '10px', padding: '8px' }}
-      />
-      <input
-        type="email"
-        placeholder="Email"
-        value={formData.email}
-        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-        style={{ width: '100%', marginBottom: '10px', padding: '8px' }}
-      />
-      <div style={{ display: 'flex', gap: '10px' }}>
-        <button type="submit">Submit</button>
-        <button type="button" onClick={closeModal}>Cancel</button>
-      </div>
-    </form>
+    <ModalBackdrop onClick={closeModal}>
+      <ModalWindow style={{ padding: '20px', background: 'white', borderRadius: '8px', maxWidth: '400px' }}>
+        <form onSubmit={handleSubmit}>
+          <h2>Contact Form</h2>
+          <input
+            type="text"
+            placeholder="Name"
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            style={{ width: '100%', marginBottom: '10px', padding: '8px' }}
+          />
+          <input
+            type="email"
+            placeholder="Email"
+            value={formData.email}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            style={{ width: '100%', marginBottom: '10px', padding: '8px' }}
+          />
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button type="submit">Submit</button>
+            <button type="button" onClick={closeModal}>Cancel</button>
+          </div>
+        </form>
+      </ModalWindow>
+    </ModalBackdrop>
   );
   
   return (
@@ -533,10 +535,12 @@ function App() {
 }
 ```
 
+<p><a href="https://jgd.qzz.io/screenshots/react-hook-modal-example-6.png"><img src="https://jgd.qzz.io/screenshots/react-hook-modal-example-6.png" alt="Example 4 screenshot" width="500" height="300"/></a></p>
+
 ### Example 5: Multiple Stacked Modals
 
 ```tsx
-import { useStaticModal, BaseModalRenderer, RenderMode } from '@rokku-x/react-hook-modal';
+import { useStaticModal, BaseModalRenderer, RenderMode, ModalBackdrop, ModalWindow } from '@rokku-x/react-hook-modal';
 
 function StackedModalsExample() {
   const [showModal1, closeModal1] = useStaticModal();
@@ -544,22 +548,26 @@ function StackedModalsExample() {
   
   const openFirstModal = () => {
     showModal1(
-      <div style={{ padding: '20px', background: 'white', borderRadius: '8px', maxWidth: '400px' }}>
-        <h2>First Modal</h2>
-        <p>This is the first modal.</p>
-        <button onClick={() => openSecondModal()}>Open Another</button>
-        <button onClick={closeModal1}>Close</button>
-      </div>
+      <ModalBackdrop onClick={closeModal1}>
+        <ModalWindow style={{ padding: '20px', background: 'white', borderRadius: '8px', maxWidth: '400px' }}>
+          <h2>First Modal</h2>
+          <p>This is the first modal.</p>
+          <button onClick={() => openSecondModal()}>Open Another</button>
+          <button onClick={closeModal1}>Close</button>
+        </ModalWindow>
+      </ModalBackdrop>
     );
   };
   
   const openSecondModal = () => {
     showModal2(
-      <div style={{ padding: '20px', background: '#f0f0f0', borderRadius: '8px', maxWidth: '400px' }}>
-        <h2>Second Modal</h2>
-        <p>This modal is stacked on top of the first one!</p>
-        <button onClick={closeModal2}>Close This Modal</button>
-      </div>
+      <ModalBackdrop onClick={closeModal2}>
+        <ModalWindow style={{ padding: '20px', background: '#f0f0f0', borderRadius: '8px', maxWidth: '400px' }}>
+          <h2>Second Modal</h2>
+          <p>This modal is stacked on top of the first one!</p>
+          <button onClick={closeModal2}>Close This Modal</button>
+        </ModalWindow>
+      </ModalBackdrop>
     );
   };
   
@@ -576,7 +584,9 @@ function App() {
 }
 ```
 
-// Example 5b: Multiple instances from a single hook (custom id / new instances)
+### Example 5b: Multiple Named & One-off Instances (useStaticModal)
+```tsx
+import { useStaticModal, BaseModalRenderer, RenderMode, ModalBackdrop, ModalWindow } from '@rokku-x/react-hook-modal';
 
 function MultipleInstancesExample() {
   const [showModal, closeModal] = useStaticModal();
@@ -584,20 +594,24 @@ function MultipleInstancesExample() {
   const openTwoDifferent = () => {
     // Use custom ids to open/target distinct modal instances
     showModal(
-      <div style={{ padding: '20px', background: 'white', borderRadius: '8px', maxWidth: '400px' }}>
-        <h2>First modal</h2>
-        <p>A modal opened using a custom id.</p>
-        <button onClick={closeModal}>Close</button>
-      </div>,
+      <ModalBackdrop onClick={() => closeModal('first-modal')}>
+        <ModalWindow style={{ padding: '20px', background: 'white', borderRadius: '8px', maxWidth: '400px' }}>
+          <h2>First modal</h2>
+          <p>A modal opened using a custom id.</p>
+          <button onClick={() => closeModal('first-modal')}>Close</button>
+        </ModalWindow>
+      </ModalBackdrop>,
       'first-modal'
     );
 
     showModal(
-      <div style={{ padding: '20px', background: '#f6f6f6', borderRadius: '8px', maxWidth: '400px' }}>
-        <h2>Second modal</h2>
-        <p>Another modal opened with a different id.</p>
-        <button onClick={closeModal}>Close</button>
-      </div>,
+      <ModalBackdrop onClick={() => closeModal('second-modal')}>
+        <ModalWindow style={{ padding: '20px', background: '#f6f6f6', borderRadius: '8px', maxWidth: '400px' }}>
+          <h2>Second modal</h2>
+          <p>Another modal opened with a different id.</p>
+          <button onClick={() => closeModal('second-modal')}>Close</button>
+        </ModalWindow>
+      </ModalBackdrop>,
       'second-modal'
     );
   };
@@ -605,11 +619,13 @@ function MultipleInstancesExample() {
   const openOneOff = () => {
     // Pass `true` to create a new unique instance each time
     showModal(
-      <div style={{ padding: '20px', background: 'white', borderRadius: '8px', maxWidth: '400px' }}>
-        <h2>One-off</h2>
-        <p>This creates a unique instance every time (pass `true`).</p>
-        <button onClick={closeModal}>Close</button>
-      </div>,
+      <ModalBackdrop>
+        <ModalWindow style={{ padding: '20px', background: 'white', borderRadius: '8px', maxWidth: '400px' }}>
+          <h2>One-off</h2>
+          <p>This creates a unique instance every time (pass `true`).</p>
+          <button onClick={closeModal}>Close</button>
+        </ModalWindow>
+      </ModalBackdrop>,
       true
     );
   };
@@ -622,10 +638,23 @@ function MultipleInstancesExample() {
   );
 }
 
+function App() {
+  return (
+    <>
+      <MultipleInstancesExample />
+      <BaseModalRenderer renderMode={RenderMode.STACKED} />
+    </>
+  );
+}
+```
+
+<p><a href="https://jgd.qzz.io/screenshots/react-hook-modal-example-8.png"><img src="https://jgd.qzz.io/screenshots/react-hook-modal-example-8.png" alt="Example 5b screenshot" width="500" height="300"/></a></p>
+
+
 ### Example 5c: Named & One-off Instances (useStaticModal)
 
 ```tsx
-import { useStaticModal, BaseModalRenderer } from '@rokku-x/react-hook-modal';
+import { useStaticModal, BaseModalRenderer, ModalBackdrop, ModalWindow } from '@rokku-x/react-hook-modal';
 
 function MultipleInstancesAdvanced() {
   const [showModal, closeModal, focus, updateModalContent, id] = useStaticModal();
@@ -633,11 +662,13 @@ function MultipleInstancesAdvanced() {
   const openNamed = () => {
     // Open/replace a named instance called 'named-a'
     showModal(
-      <div style={{ padding: '20px', background: 'white' }}>
-        <h2>Named A</h2>
-        <p>This modal is opened with a custom id ('named-a').</p>
-        <button onClick={() => closeModal('named-a')}>Close Named A</button>
-      </div>,
+      <ModalBackdrop onClick={() => closeModal('named-a')}>
+        <ModalWindow style={{ padding: '20px', background: 'white' }}>
+          <h2>Named A</h2>
+          <p>This modal is opened with a custom id ('named-a').</p>
+          <button onClick={() => closeModal('named-a')}>Close Named A</button>
+        </ModalWindow>
+      </ModalBackdrop>,
       'named-a'
     );
   };
@@ -645,10 +676,12 @@ function MultipleInstancesAdvanced() {
   const openOneOff = () => {
     // Create a one-off unique instance each time by passing `true`
     const oneOffHookId = showModal(
-      <div style={{ padding: '20px', background: '#f7f7f7' }}>
-        <h2>One-off</h2>
-        <p>This instance is unique every call (created by passing <code>true</code>).</p>
-      </div>,
+      <ModalBackdrop>
+        <ModalWindow style={{ padding: '20px', background: '#f7f7f7' }}>
+          <h2>One-off</h2>
+          <p>This instance is unique every call (created by passing <code>true</code>).</p>
+        </ModalWindow>
+      </ModalBackdrop>,
       true
     );
     console.log('one-off created by hook id:', oneOffHookId);
@@ -656,10 +689,12 @@ function MultipleInstancesAdvanced() {
 
   const updateNamed = () => {
     updateModalContent(
-      <div style={{ padding: '20px', background: 'white' }}>
-        <h2>Named A (Updated)</h2>
-        <p>Content was updated programmatically via <code>updateModalContent</code>.</p>
-      </div>,
+      <ModalBackdrop>
+        <ModalWindow style={{ padding: '20px', background: 'white' }}>
+          <h2>Named A (Updated)</h2>
+          <p>Content was updated programmatically via <code>updateModalContent</code>.</p>
+        </ModalWindow>
+      </ModalBackdrop>,
       'named-a'
     );
   };
@@ -684,12 +719,14 @@ function App() {
 }
 ```
 
+<p><a href="https://jgd.qzz.io/screenshots/react-hook-modal-example-9.png"><img src="https://jgd.qzz.io/screenshots/react-hook-modal-example-9.png" alt="Example 5c screenshot" width="500" height="300"/></a></p>
+
 > This example shows how to open named instances (by passing a string id) and how to create one-off unique instances (by passing `true`). It also demonstrates using the returned `id` for reference in your UI.
 
 ### Example 6: Custom Styling
 
 ```tsx
-import { useStaticModal, BaseModalRenderer } from '@rokku-x/react-hook-modal';
+import { useStaticModal, BaseModalRenderer, ModalBackdrop, ModalWindow } from '@rokku-x/react-hook-modal';
 
 function StyledModalExample() {
   const [showModal, closeModal] = useStaticModal();
@@ -697,32 +734,34 @@ function StyledModalExample() {
   return (
     <>
       <button onClick={() => showModal(
-        <div style={{
-          padding: '30px',
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          borderRadius: '12px',
-          color: 'white',
-          textAlign: 'center',
-          maxWidth: '500px',
-          boxShadow: '0 10px 40px rgba(0,0,0,0.3)'
-        }}>
-          <h2>Styled Modal</h2>
-          <p>This modal has custom styling!</p>
-          <button 
-            onClick={closeModal}
-            style={{
-              background: 'white',
-              color: '#667eea',
-              border: 'none',
-              padding: '10px 20px',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              fontWeight: 'bold'
-            }}
-          >
-            Close
-          </button>
-        </div>
+        <ModalBackdrop onClick={closeModal}>
+          <ModalWindow style={{
+            padding: '30px',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            borderRadius: '12px',
+            color: 'white',
+            textAlign: 'center',
+            maxWidth: '500px',
+            boxShadow: '0 10px 40px rgba(0,0,0,0.3)'
+          }}>
+            <h2>Styled Modal</h2>
+            <p>This modal has custom styling!</p>
+            <button 
+              onClick={closeModal}
+              style={{
+                background: 'white',
+                color: '#667eea',
+                border: 'none',
+                padding: '10px 20px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontWeight: 'bold'
+              }}
+            >
+              Close
+            </button>
+          </ModalWindow>
+        </ModalBackdrop>
       )}>
         Show Styled Modal
       </button>
@@ -735,6 +774,7 @@ function StyledModalExample() {
   );
 }
 ```
+<p><a href="https://jgd.qzz.io/screenshots/react-hook-modal-example-10.png"><img src="https://jgd.qzz.io/screenshots/react-hook-modal-example-10.png" alt="Example 6 screenshot" width="500" height="300"/></a></p>
 
 ## Types
 
@@ -762,6 +802,33 @@ type AcceptableElement = React.ReactNode | (() => React.ReactNode);
 4. **Use dynamic modals for complex interactions** - Better for forms and interactive content
 5. **Keep modals accessible** - Provide keyboard navigation and ARIA attributes
 6. **Customize styling carefully** - Use `windowClassName` and `windowStyle` for consistent styling
+
+## Bundle Size
+
+- ESM: ~2.42 kB gzipped (7.64 kB raw)
+- CJS: ~2.11 kB gzipped (5.72 kB raw)
+
+Measured with Vite build for v0.7.1.
+
+## Runtime Performance
+
+Measured locally (jsdom, React 18, macOS) using a microbenchmark:
+- Push/Pop: ~7.6 µs per op
+- Update Content: ~2.6 µs per op
+- Focus Modal: ~1.1 µs per op
+- Dynamic Portal Render: ~0.5 µs per call
+
+Notes:
+- Numbers are approximate and depend on device/load.
+- Portal render figures reflect the cost of creating the portal when the modal window ref exists.
+
+## Library Load Time
+
+Measured in Node (dynamic import/require):
+- CJS require: ~16.0 ms
+- ESM import: ~20.5 ms
+
+See perf harnesses under `src/__tests__/perf.test.ts` and `src/__tests__/perf-load.test.ts`.
 
 ## License
 
