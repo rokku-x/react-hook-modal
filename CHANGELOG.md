@@ -1,5 +1,11 @@
 # @rokku-x/react-hook-modal
 
+## 0.9.4
+
+### Patch Changes
+
+- 8df4f01: patch: inert warning fix
+
 ## 0.9.3
 
 ### Patch Changes
