@@ -5,6 +5,20 @@ import path from 'path'
 import pkg from './package.json';
 import preserveDirectives from 'rollup-plugin-preserve-directives';
 
+function removeEmptyCssComments() {
+    return {
+        name: 'remove-empty-css-comments',
+        generateBundle(_: any, bundle: any) {
+            for (const fileName of Object.keys(bundle)) {
+                const chunk = bundle[fileName];
+                if (chunk.type === 'chunk' && typeof chunk.code === 'string') {
+                    chunk.code = chunk.code.replace(/\/\* *empty css[^*]*\*\//g, '');
+                }
+            }
+        },
+    };
+}
+
 export default defineConfig({
     resolve: {
         alias: {
@@ -29,6 +43,9 @@ export default defineConfig({
             compress: {
                 directives: false,
             },
+            format: {
+                comments: false
+            }
         },
         lib: {
             entry: {
@@ -44,7 +61,7 @@ export default defineConfig({
                 'react/jsx-runtime',
                 ...Object.keys(pkg.peerDependencies || {})
             ],
-            plugins: [preserveDirectives()],
+            plugins: [preserveDirectives(), removeEmptyCssComments()],
             output: [
                 {
                     format: 'es',

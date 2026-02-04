@@ -8,6 +8,7 @@
   },
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
+  "style": "dist/react-hook-modal.css",
   "types": "dist/index.d.ts",
   "devDependencies": {
     "@changesets/cli": "^2.29.8",

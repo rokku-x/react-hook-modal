@@ -78,7 +78,7 @@ export default function BaseModalRenderer({ renderMode = RenderMode.STACKED, id,
             prevActiveElement.current?.focus?.();
         }
 
-    }, [currentModalId]);
+    }, [currentModalId, disableBackgroundScroll]);
 
     const refCallback = useCallback((node: HTMLDivElement | null, modalId: string) => {
         if (node) {
@@ -96,11 +96,11 @@ export default function BaseModalRenderer({ renderMode = RenderMode.STACKED, id,
                     <div
                         key={modalStackIds[index]}
                         ref={node => refCallback(node, modalStackIds[index])}
-                        className={`modal-window ${windowClassName || ''}`}
+                        className={`modal-instance ${windowClassName || ''}`}
                         id={modalStackIds[index]}
                         style={{ ...(windowStyle || {}) }}
                         tabIndex={-1}
-                        inert={currentModalId! !== modalStackIds[index]}
+                        inert={(currentModalId! !== modalStackIds[index]) || ""}
                         aria-hidden={currentModalId! !== modalStackIds[index]}
                     >
                         {typeof modal === 'function' ? (modal as () => React.ReactNode | JSX.Element)() : modal}
@@ -111,7 +111,7 @@ export default function BaseModalRenderer({ renderMode = RenderMode.STACKED, id,
                     id={modalStackIds[modalStack.length - 1]}
                     ref={node => refCallback(node, modalStackIds[modalStack.length - 1])}
                     key={modalStackIds[modalStack.length - 1]}
-                    className={`modal-window ${windowClassName || ''}`}
+                    className={`modal-instance ${windowClassName || ''}`}
                     style={{ ...(windowStyle || {}) }}
                     tabIndex={-1}
                     aria-hidden={false}
@@ -131,7 +131,7 @@ export default function BaseModalRenderer({ renderMode = RenderMode.STACKED, id,
                                 visibility: currentModalId! === modalStackIds[index] ? 'visible' : 'hidden'
                             }}
                             tabIndex={-1}
-                            inert={currentModalId! !== modalStackIds[index]}
+                            inert={(currentModalId! !== modalStackIds[index]) || ""}
                             aria-hidden={currentModalId! !== modalStackIds[index]}
                         >
                             {!isDynamic ? (typeof modal === 'function' ? (modal as () => React.ReactNode | JSX.Element)() : modal) : null}
@@ -146,7 +146,7 @@ export default function BaseModalRenderer({ renderMode = RenderMode.STACKED, id,
 
     return modalStackIds.length === 0 ? null :
         <>
-            {createPortal(<style>{`${disableBackgroundScroll ? `body:has(dialog#${wrapperIdFinal}[open]){overflow:hidden}body{scrollbar-gutter:stable}` : ''}dialog#${wrapperIdFinal}[open]{width:100vw;height:100vh;max-width:100%;max-height:100%}.modal-wrapper{border:none;padding:0;background:unset}.modal-window{display:block;position:absolute;width:100%;height:100%;backdrop-filter:blur(2px);background-color:rgba(0,0,0,.1)}`}</style>, document.head)}
-            {createPortal(<dialog role="dialog" aria-modal="true" ref={dialogRef} id={wrapperIdFinal} className={`modal-wrapper ${className || ''}`} style={style} children={renderContent} />, document.body)}
+            {createPortal(<style>{`${disableBackgroundScroll ? `body:has(dialog#${wrapperIdFinal}[open]){overflow:hidden}body{scrollbar-gutter:stable}` : ''}dialog#${wrapperIdFinal}[open]{width:100vw;height:100vh;max-width:100%;max-height:100%}.renderer-wrapper{border:none;padding:0;background:unset}.modal-instance{display:block;position:absolute;width:100%;height:100%;backdrop-filter:blur(2px);background-color:rgba(0,0,0,.1)}`}</style>, document.head)}
+            {createPortal(<dialog role="dialog" aria-modal="true" ref={dialogRef} id={wrapperIdFinal} className={`renderer-wrapper ${className || ''}`} style={style} children={renderContent} />, document.body)}
         </>
 }

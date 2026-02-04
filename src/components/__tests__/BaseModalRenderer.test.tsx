@@ -179,7 +179,7 @@ describe('BaseModalRenderer', () => {
             <div>
                 <BaseModalRenderer
                     id="responsive-modal"
-                    className="modal-wrapper-responsive"
+                    className="renderer-wrapper-responsive"
                     style={{ width: '100vw' }}
                     windowStyle={{ maxHeight: '90vh' }}
                 />
@@ -238,7 +238,7 @@ describe('BaseModalRenderer', () => {
         render(
             <div>
                 <BaseModalRenderer
-                    className="modal-wrapper"
+                    className="renderer-wrapper"
                     style={{
                         position: 'fixed',
                         zIndex: 1000

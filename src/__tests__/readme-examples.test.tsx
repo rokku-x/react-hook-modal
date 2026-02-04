@@ -316,7 +316,7 @@ describe('README Examples', () => {
         // Open a one-off modal (true)
         await userEvent.click(screen.getByText('Open One-off Modal'))
         // There should be at least three modal windows present
-        const wins = document.body.querySelectorAll('.modal-window')
+        const wins = document.body.querySelectorAll('.modal-instance')
         expect(wins.length).toBeGreaterThanOrEqual(3)
     })
 
@@ -326,7 +326,7 @@ describe('README Examples', () => {
         const dialog = document.body.querySelector('dialog#base-modal-wrapper')
         expect(dialog).toBeTruthy()
         expect(dialog?.className).toMatch(/custom-modal-wrapper/)
-        const win = document.body.querySelector('.modal-window') as HTMLElement
+        const win = document.body.querySelector('.modal-instance') as HTMLElement
         expect(win).toBeTruthy()
         expect(win.className).toMatch(/custom-modal-window/)
     })
