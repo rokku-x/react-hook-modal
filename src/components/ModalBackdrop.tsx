@@ -1,5 +1,5 @@
 import React from "react";
-import './modal-backdrop.css'
+import './ModalBackdrop.css'
 
 export interface ModalBackdropProps extends React.HTMLAttributes<HTMLDivElement> {
 }

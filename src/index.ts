@@ -15,6 +15,3 @@ export type { ModalWindowProps } from './components/ModalWindow'
 export { stopPropagation } from './utils/utils'
 export type { UseStaticModalReturn, ShowModalFn, CloseModalFn, UpdateModalContentFn } from './hooks/useStaticModal'
 export type { UseDynamicModalReturn, RenderModalElementFn, ShowDynamicModalFn, CloseDynamicModalFn, FocusDynamicModalFn } from './hooks/useDynamicModal'
-
-import './components/modal-window.css'
-import './components/modal-backdrop.css'

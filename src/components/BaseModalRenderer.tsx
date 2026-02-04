@@ -70,11 +70,13 @@ export default function BaseModalRenderer({ renderMode = RenderMode.STACKED, id,
             prevActiveElement.current = document.activeElement as HTMLElement | null;
             dialogRef.current?.showModal();
             document.body.setAttribute('inert', 'true');
+            if (disableBackgroundScroll) document.body.classList.add('hook-modal-open');
             const el = modalWindowRefs.current.get(lastModalId);
             if (el) el.focus();
         } else if (lastModalId === undefined) {
             dialogRef.current?.close();
             document.body.removeAttribute('inert');
+            if (disableBackgroundScroll) document.body.classList.remove('hook-modal-open');
             prevActiveElement.current?.focus?.();
         }
 
@@ -100,7 +102,7 @@ export default function BaseModalRenderer({ renderMode = RenderMode.STACKED, id,
                         id={modalStackIds[index]}
                         style={{ ...(windowStyle || {}) }}
                         tabIndex={-1}
-                        inert={(currentModalId! !== modalStackIds[index]) || ""}
+                        inert={currentModalId! !== modalStackIds[index]}
                         aria-hidden={currentModalId! !== modalStackIds[index]}
                     >
                         {typeof modal === 'function' ? (modal as () => React.ReactNode | JSX.Element)() : modal}
@@ -131,7 +133,7 @@ export default function BaseModalRenderer({ renderMode = RenderMode.STACKED, id,
                                 visibility: currentModalId! === modalStackIds[index] ? 'visible' : 'hidden'
                             }}
                             tabIndex={-1}
-                            inert={(currentModalId! !== modalStackIds[index]) || ""}
+                            inert={currentModalId! !== modalStackIds[index]}
                             aria-hidden={currentModalId! !== modalStackIds[index]}
                         >
                             {!isDynamic ? (typeof modal === 'function' ? (modal as () => React.ReactNode | JSX.Element)() : modal) : null}

@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/rokku-x/react-hook-dialog/actions/workflows/ci.yml/badge.svg)](https://github.com/rokku-x/react-hook-dialog/actions/workflows/ci.yml) [![npm version](https://img.shields.io/npm/v/@rokku-x/react-hook-modal.svg)](https://www.npmjs.com/package/@rokku-x/react-hook-modal) [![license](https://img.shields.io/npm/l/@rokku-x/react-hook-modal.svg)](LICENSE) [![downloads](https://img.shields.io/npm/dm/@rokku-x/react-hook-modal.svg)](https://www.npmjs.com/package/@rokku-x/react-hook-modal) ![TS](https://img.shields.io/badge/TS-%E2%9C%93-blue)
 
-A powerful and flexible React modal hook library that supports stacking and multi-window modals, with multiple rendering modes, dynamic and static modal support, and zero dependencies (except React and Zustand).
+A lightweight, powerful, and flexible React modal hook library that supports stacking and multi-window modals, with multiple rendering modes, dynamic and static modal support, and zero non-core dependencies (except React and Zustand).
 
 ## Installation
 
@@ -18,6 +18,8 @@ npm install @rokku-x/react-hook-modal
 - 🪝 **React Hooks API** - Easy-to-use hook-based interface
 - 📦 **TypeScript Support** - Full type safety out of the box
 - 🎨 **Customizable Styling** - Extensive styling props for complete control
+- ✨ **Auto-injected Styles** - CSS automatically injected, no separate import needed
+- 🪶 **Lightweight** - Under 3 kB gzipped, tree-shakeable with modular build
 - ♿ **Accessibility** - Built-in support for scroll prevention and inert attribute
 
 ## Quick Start
@@ -805,16 +807,16 @@ type AcceptableElement = React.ReactNode | (() => React.ReactNode);
 
 ## Bundle Size
 
-- ESM: ~2.42 kB gzipped (7.64 kB raw)
-- CJS: ~2.11 kB gzipped (5.72 kB raw)
+- ESM: ~2.83 kB gzipped (7.71 kB raw)
+- CJS: ~2.78 kB gzipped (8.56 kB raw)
 
-Measured with Vite build for v0.7.1.
+Measured with Vite build for v0.9.2 (includes auto-injected CSS, total size of all modules).
 
 ## Runtime Performance
 
 Measured locally (jsdom, React 18, macOS) using a microbenchmark:
-- Push/Pop: ~7.6 µs per op
-- Update Content: ~2.6 µs per op
+- Push/Pop: ~7.3 µs per op
+- Update Content: ~2.4 µs per op
 - Focus Modal: ~1.1 µs per op
 - Dynamic Portal Render: ~0.5 µs per call
 
@@ -825,8 +827,8 @@ Notes:
 ## Library Load Time
 
 Measured in Node (dynamic import/require):
-- CJS require: ~16.0 ms
-- ESM import: ~20.5 ms
+- CJS require: ~20.5 ms
+- ESM import: ~38.2 ms
 
 See perf harnesses under `src/__tests__/perf.test.ts` and `src/__tests__/perf-load.test.ts`.
 

@@ -1,6 +1,6 @@
 import { stopPropagation } from "@/utils/utils";
 import React from "react";
-import './modal-window.css'
+import './ModalWindow.css'
 
 export interface ModalWindowProps extends React.HTMLAttributes<HTMLDivElement> {
 
