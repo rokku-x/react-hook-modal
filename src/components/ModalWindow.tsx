@@ -1,5 +1,6 @@
 import { stopPropagation } from "@/utils/utils";
 import React from "react";
+import './modal-window.css'
 
 export interface ModalWindowProps extends React.HTMLAttributes<HTMLDivElement> {
 
@@ -9,16 +10,7 @@ export default function ModalWindow({ className = "", style = {}, children, ...r
     return (
         <div
             className={`hook-modal-window ${className}`}
-            style={{
-                minWidth: 360,
-                maxWidth: "90vw",
-                backgroundColor: "#fff",
-                borderRadius: 30,
-                boxShadow: "0 10px 40px rgba(0,0,0,0.2)",
-                padding: 25,
-                position: "relative",
-                ...style,
-            }}
+            style={style}
             tabIndex={-1}
             onClick={stopPropagation}
             {...rest}

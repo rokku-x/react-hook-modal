@@ -2,7 +2,10 @@
 
 import { useRef, ReactNode, useId, useState, useEffect, createElement } from "react";
 import { createPortal } from "react-dom";
-import useBaseModal, { AcceptableElement, RenderMode, useBaseModalInternal } from "@/hooks/useBaseModal";
+import useBaseModal from "@/hooks/useBaseModal";
+import { RenderMode } from "@/types/modal";
+export type { AcceptableElement, ModalEntry } from '../types/modal'
+export { RenderMode };
 
 /** Function returned by `useDynamicModal` to render content inside the modal window via a portal. */
 export type RenderModalElementFn = (el: ReactNode) => ReactNode;
@@ -63,5 +66,4 @@ export default function useDynamicModal(): UseDynamicModalReturn {
 
     return [renderModalElement, showModal, closeModal, focus, id, isForeground];
 }
-export { RenderMode };
 

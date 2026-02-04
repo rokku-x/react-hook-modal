@@ -1,8 +1,9 @@
 'use client'
 
-export { default as useBaseModal, useBaseModalStore } from './hooks/useBaseModal'
-export { RenderMode } from './hooks/useBaseModal'
-export type { AcceptableElement, ModalEntry } from './hooks/useBaseModal'
+export { default as useBaseModal } from './hooks/useBaseModal'
+export { default as storeBaseModal } from './store/modal'
+export { RenderMode } from './types/modal'
+export type { AcceptableElement, ModalEntry } from './types/modal'
 export { default as useStaticModal } from './hooks/useStaticModal'
 export { default as useDynamicModal } from './hooks/useDynamicModal'
 export { default as BaseModalRenderer } from './components/BaseModalRenderer'

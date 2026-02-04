@@ -1,0 +1,9 @@
+.hook-modal-window {
+    min-width: 360px;
+    max-width: 90vw;
+    background-color: #fff;
+    border-radius: 30px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    padding: 25px;
+    position: relative;
+}

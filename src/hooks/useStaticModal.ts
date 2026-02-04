@@ -4,6 +4,7 @@ import { useId } from "react";
 import useBaseModal, { AcceptableElement, RenderMode } from "@/hooks/useBaseModal";
 import { randomId } from "@/utils/utils";
 export { RenderMode };
+export type { AcceptableElement, ModalEntry } from '../types/modal'
 
 interface ShowModalFnOverLoad {
     (el?: AcceptableElement, stack?: boolean): string,

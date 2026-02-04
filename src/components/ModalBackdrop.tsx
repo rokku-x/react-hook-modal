@@ -1,4 +1,5 @@
 import React from "react";
+import './modal-backdrop.css'
 
 export interface ModalBackdropProps extends React.HTMLAttributes<HTMLDivElement> {
 }
@@ -7,15 +8,7 @@ export default function ModalBackdrop({ onClick, className = "", style = {}, chi
     return (
         <div
             className={`hook-modal-backdrop ${className}`}
-            style={{
-                position: "fixed",
-                inset: 0,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                zIndex: 1000,
-                ...style,
-            }}
+            style={style}
             onClick={onClick}
         >
             {children}
