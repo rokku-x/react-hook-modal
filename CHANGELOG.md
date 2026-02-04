@@ -1,5 +1,12 @@
 # @rokku-x/react-hook-modal
 
+## 0.9.1
+
+### Patch Changes
+
+- ef02c20: patch: css styling importing
+- 4108140: patch: changed modal backdrop and window to class styling, changed modal store management
+
 ## 0.9.0
 
 ### Minor Changes
