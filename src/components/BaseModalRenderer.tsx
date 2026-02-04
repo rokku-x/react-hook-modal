@@ -102,7 +102,7 @@ export default function BaseModalRenderer({ renderMode = RenderMode.STACKED, id,
                         id={modalStackIds[index]}
                         style={{ ...(windowStyle || {}) }}
                         tabIndex={-1}
-                        inert={currentModalId! !== modalStackIds[index]}
+                        inert={currentModalId! !== modalStackIds[index] ? '' : undefined}
                         aria-hidden={currentModalId! !== modalStackIds[index]}
                     >
                         {typeof modal === 'function' ? (modal as () => React.ReactNode | JSX.Element)() : modal}
@@ -133,7 +133,7 @@ export default function BaseModalRenderer({ renderMode = RenderMode.STACKED, id,
                                 visibility: currentModalId! === modalStackIds[index] ? 'visible' : 'hidden'
                             }}
                             tabIndex={-1}
-                            inert={currentModalId! !== modalStackIds[index]}
+                            inert={currentModalId! !== modalStackIds[index] ? '' : undefined}
                             aria-hidden={currentModalId! !== modalStackIds[index]}
                         >
                             {!isDynamic ? (typeof modal === 'function' ? (modal as () => React.ReactNode | JSX.Element)() : modal) : null}
