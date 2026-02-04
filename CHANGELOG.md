@@ -1,5 +1,12 @@
 # @rokku-x/react-hook-modal
 
+## 0.9.3
+
+### Patch Changes
+
+- 7f7a671: patch: new css bundling method
+- 7f7a671: patch: update readme
+
 ## 0.9.2
 
 ### Patch Changes
