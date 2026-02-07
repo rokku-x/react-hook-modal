@@ -1,5 +1,16 @@
 # @rokku-x/react-hook-modal
 
+## 0.10.0
+
+### Minor Changes
+
+- c4de3d7: feat: support multiple BaseModalRenderer instances with isolated stores and update hooks to accept options
+
+### Patch Changes
+
+- c4de3d7: docs: update README for improved clarity and add usage examples; enhance package.json keywords
+- c4de3d7: feat: implement createPolyfillComponent utility and update Modal components to use it
+
 ## 0.9.4
 
 ### Patch Changes
