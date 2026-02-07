@@ -25,21 +25,26 @@ export type FocusStaticModalFn = (customId?: string) => boolean;
 export type UpdateModalContentFn = (newContent: AcceptableElement, customId?: string) => boolean;
 /** Tuple returned by `useStaticModal`. */
 export type UseStaticModalReturn = [ShowModalFn, CloseModalFn, FocusStaticModalFn, UpdateModalContentFn, string];
-
+/** Options for `useStaticModal`. */
+export type UseStaticModalOptions = {
+    element?: AcceptableElement;
+    rendererId?: string;
+}
 /**
  * Hook for displaying static modal content.
  *
  * Static modals render content provided at open time (or via the hook parameter).
  *
  * @param element Optional default content to use when calling `showModal()` without arguments.
+ * @param rendererId Optional ID of the `BaseModalRenderer` to use; defaults to the default renderer.
  * @returns `[showModal, closeModal, focus, updateModalContent, id]`
  * @example
  * const [show, close, focus, updateModalContent, id] = useStaticModal()
  * <button onClick={() => show(<div>Hi</div>)}>Open</button>
  */
-export default function useStaticModal(element?: AcceptableElement): UseStaticModalReturn {
+export default function useStaticModal({ element, rendererId }: UseStaticModalOptions = {}): UseStaticModalReturn {
     const id: string = useId();
-    const { pushModal, popModal, updateModal, focusModal } = useBaseModal();
+    const { pushModal, popModal, updateModal, focusModal } = useBaseModal({ rendererId });
 
     const showModal: ShowModalFn = (el?: AcceptableElement, sId: boolean | string = id) => {
         let instanceId = typeof sId === "string" ? sId : sId === true ? randomId(4) : id;

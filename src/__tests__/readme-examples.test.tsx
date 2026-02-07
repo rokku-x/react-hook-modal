@@ -48,7 +48,7 @@ function WelcomeModalParam() {
             <button onClick={() => closeRef.current()}>Close</button>
         </div>
     )
-    const [showModal, closeModal] = useStaticModal(content)
+    const [showModal, closeModal] = useStaticModal({ element: content })
     useEffect(() => { closeRef.current = closeModal }, [closeModal])
     return <button onClick={() => showModal()}>Show Welcome Modal</button>
 }

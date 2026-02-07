@@ -9,14 +9,18 @@ export { RenderMode };
 
 /** Function returned by `useDynamicModal` to render content inside the modal window via a portal. */
 export type RenderModalElementFn = (el: ReactNode) => ReactNode;
-/** Function returned by `useDynamicModal` to open the modal. */
-export type ShowDynamicModalFn = () => void;
+/** Function returned by `useDynamicModal` to open the modal. Returns the modal id string. */
+export type ShowDynamicModalFn = () => string;
 /** Function returned by `useDynamicModal` to close the modal. */
 export type CloseDynamicModalFn = () => boolean;
 /** Function returned by `useDynamicModal` to focus the modal to foreground. */
 export type FocusDynamicModalFn = () => boolean;
 /** Tuple returned by `useDynamicModal`. */
 export type UseDynamicModalReturn = [RenderModalElementFn, ShowDynamicModalFn, CloseDynamicModalFn, FocusDynamicModalFn, string, boolean];
+/** Options for `useDynamicModal`. */
+export type UseDynamicModalOptions = {
+    rendererId?: string;
+}
 
 /**
  * Hook for dynamic modals where content is rendered from within the modal window.
@@ -25,6 +29,7 @@ export type UseDynamicModalReturn = [RenderModalElementFn, ShowDynamicModalFn, C
  * rendered into the modal window using a React portal. Requires a mounted
  * `BaseModalRenderer` so the window ref exists.
  *
+ * @param rendererId Optional ID of the `BaseModalRenderer` to use; defaults to the default renderer.
  * @returns `[renderModalElement, showModal, closeModal, focus, id, isForeground]`
  * @example
  * const [render, show, close] = useDynamicModal()
@@ -33,9 +38,9 @@ export type UseDynamicModalReturn = [RenderModalElementFn, ShowDynamicModalFn, C
  *   {render(<div><button onClick={close}>Close</button></div>)}
  * </>)
  */
-export default function useDynamicModal(): UseDynamicModalReturn {
+export default function useDynamicModal({ rendererId }: UseDynamicModalOptions = {}): UseDynamicModalReturn {
     const id: string = useId();
-    const { pushModal, popModal, focusModal, getModalWindowRef, currentModalId } = useBaseModal();
+    const { pushModal, popModal, focusModal, getModalWindowRef, currentModalId } = useBaseModal({ rendererId });
     const [, setRerender] = useState(0);
     const isForeground = currentModalId === id;
 
