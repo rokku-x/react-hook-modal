@@ -2,12 +2,20 @@
 
 [![CI](https://github.com/rokku-x/react-hook-dialog/actions/workflows/ci.yml/badge.svg)](https://github.com/rokku-x/react-hook-dialog/actions/workflows/ci.yml) [![npm version](https://img.shields.io/npm/v/@rokku-x/react-hook-modal.svg)](https://www.npmjs.com/package/@rokku-x/react-hook-modal) [![license](https://img.shields.io/npm/l/@rokku-x/react-hook-modal.svg)](LICENSE) [![downloads](https://img.shields.io/npm/dm/@rokku-x/react-hook-modal.svg)](https://www.npmjs.com/package/@rokku-x/react-hook-modal) ![TS](https://img.shields.io/badge/TS-%E2%9C%93-blue)
 
-A lightweight, powerful, and flexible React modal hook library that supports stacking and multi-window modals, with multiple rendering modes, dynamic and static modal support, and zero non-core dependencies (except React and Zustand).
+<p><a href="https://jgd.qzz.io/rhm.png"><img src="https://jgd.qzz.io/rhm.png" alt="react-hook-modal Logo" width="600"/></a></p>
+
+A lightweight, powerful, and flexible React modal hook library that supports stacking and multi-window modals, with multiple rendering modes, dynamic and static modal support, and zero non-core dependencies.
 
 ## Installation
 
 ```bash
 npm install @rokku-x/react-hook-modal
+# or
+bun add @rokku-x/react-hook-modal
+# or
+yarn add @rokku-x/react-hook-modal
+# or
+pnpm add @rokku-x/react-hook-modal
 ```
 
 ## Features
@@ -18,9 +26,20 @@ npm install @rokku-x/react-hook-modal
 - 🪝 **React Hooks API** - Easy-to-use hook-based interface
 - 📦 **TypeScript Support** - Full type safety out of the box
 - 🎨 **Customizable Styling** - Extensive styling props for complete control
+- 🔹 **Versatile Overlays** - Use it to build dialogs, alerts, popups, prompts, forms, loading spinners, UI blockers, and more.
 - ✨ **Auto-injected Styles** - CSS automatically injected, no separate import needed
 - 🪶 **Lightweight** - Under 3 kB gzipped, tree-shakeable with modular build
 - ♿ **Accessibility** - Built-in support for scroll prevention and inert attribute
+
+### Use Cases
+
+- **Confirmation & Alerts** — Small confirm/cancel dialogs for destructive actions and important messages.
+- **Prompts & Forms** — Collect user input using forms rendered inside modals (supports dynamic portals or static form content).
+- **Loading & Activity Spinners** — Full-screen or localized spinners during async operations; show one-off instances while loading.
+- **UI Blockers & Backdrops** — Block user interaction and display status or retry actions when needed.
+- **Popups & Tool Panels** — Lightweight contextual overlays or tool panels rendered into a modal window.
+- **Stacked & Multi-instance Modals** — Open multiple stacked modals or use multiple `BaseModalRenderer` instances (via `rendererId`) to scope overlays to different app areas, apply different styles to different renderers.
+
 
 ## Quick Start
 
@@ -233,6 +252,60 @@ Low-level hook for direct modal store access. Used internally by other hooks.
 ```
 
 ## Examples
+
+### Quick Examples
+
+**Confirm / Alert**
+
+```tsx
+function ConfirmExample() {
+  const [showModal, closeModal] = useStaticModal()
+  const openConfirm = () => showModal(
+    <div>
+      <h2>Confirm Delete</h2>
+      <p>Are you sure you want to delete this?</p>
+      <button onClick={() => { console.log('deleted'); closeModal(); }}>Delete</button>
+      <button onClick={closeModal}>Cancel</button>
+    </div>
+  )
+  return <button onClick={openConfirm}>Delete</button>
+}
+```
+
+**Loading Spinner**
+
+```tsx
+function LoadingExample() {
+  const [showModal, closeModal] = useStaticModal()
+  const runTask = async () => {
+    const spinnerId = showModal(<div className="spinner">Loading…</div>, true)
+    await someAsyncWork()
+    closeModal(spinnerId)
+  }
+  return <button onClick={runTask}>Run Task</button>
+}
+```
+
+**Prompt / Form (dynamic)**
+
+```tsx
+function PromptExample() {
+  const [renderModalElement, showModal, closeModal] = useDynamicModal()
+  const onOpen = () => showModal()
+  return (
+    <>
+      <button onClick={onOpen}>Open Prompt</button>
+      {renderModalElement(
+        <form onSubmit={(e) => { e.preventDefault(); /* read value */ closeModal() }}>
+          <input name="value" placeholder="Enter value" />
+          <button type="submit">OK</button>
+          <button type="button" onClick={closeModal}>Cancel</button>
+        </form>
+      )}
+    </>
+  )
+}
+```
 
 ### Example 1: Basic Static Modal
 
