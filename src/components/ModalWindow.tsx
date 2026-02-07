@@ -1,12 +1,11 @@
 import { stopPropagation } from "@/utils/utils";
 import React from "react";
 import './ModalWindow.css'
+import { createPolyfillComponent } from "@/utils/createPolyfillComponent";
 
-export interface ModalWindowProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface ModalWindowProps extends React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement> { }
 
-}
-
-export default function ModalWindow({ className = "", style = {}, children, ...rest }: ModalWindowProps) {
+function ModalWindow({ className = "", style = {}, children, ...rest }: ModalWindowProps) {
     return (
         <div
             className={`hook-modal-window ${className}`}
@@ -19,3 +18,5 @@ export default function ModalWindow({ className = "", style = {}, children, ...r
         </div>
     );
 }
+
+export default createPolyfillComponent(ModalWindow) as typeof ModalWindow;

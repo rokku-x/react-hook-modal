@@ -52,7 +52,7 @@ describe('Integration Tests - Modal Hooks', () => {
 
         it('should handle default content and custom content', () => {
             const { result: baseResult } = renderHook(() => useBaseModalInternal())
-            const { result: staticDefault } = renderHook(() => useStaticModal('Default Content'))
+            const { result: staticDefault } = renderHook(() => useStaticModal({ element: 'Default Content' }))
             const { result: staticCustom } = renderHook(() => useStaticModal())
 
             act(() => {
@@ -222,7 +222,7 @@ describe('Integration Tests - Modal Hooks', () => {
 
         it('should handle stacked modals with updates', () => {
             const { result: baseResult } = renderHook(() => useBaseModalInternal())
-            const { result: static1 } = renderHook(() => useStaticModal('Default 1'))
+            const { result: static1 } = renderHook(() => useStaticModal({ element: 'Default 1' }))
             const { result: static2 } = renderHook(() => useStaticModal())
 
             act(() => {

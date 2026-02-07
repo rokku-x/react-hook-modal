@@ -5,18 +5,18 @@ import { RenderMode, useBaseModalInternal } from "@/hooks/useBaseModal";
 import { createPortal } from "react-dom";
 
 /**
- * Renders the shared modal container for the application.
+ * Renders the modal container for the application.
  *
- * Must be mounted once at the root of your app. When mounted, it sets up
- * internal state and provides a wrapper `<dialog>` element where modal windows
- * are rendered according to the selected `renderMode`.
+ * Multiple `BaseModalRenderer` instances are supported — one per unique `id`.
+ * When mounted, it sets up internal state and provides a wrapper `<dialog>` element where modal windows
+ * are rendered according to the selected `renderMode`. Each renderer instance uses an isolated store keyed by `id`.
  *
  * @remarks
- * - Only one `BaseModalRenderer` can be mounted at a time.
- * - Mounting this component enables the modal store (`isMounted`), which is
- *   required for hook actions (e.g., `pushModal`, `renderModalElement`).
+ * - Mounting this component enables the modal store (`isMounted`) for that `id`, which is required for hook actions.
+ * - Mounting two `BaseModalRenderer` with the same `id` will throw an error (only one instance per id is allowed).
  */
 export interface BaseModalRendererProps {
+
     /**
      * Determines how multiple modals are displayed.
      * @default RenderMode.STACKED
@@ -44,17 +44,17 @@ export interface BaseModalRendererProps {
     children?: React.ReactNode
 }
 
-export default function BaseModalRenderer({ renderMode = RenderMode.STACKED, id, style, className, windowClassName, windowStyle, disableBackgroundScroll = true }: BaseModalRendererProps) {
+export default function BaseModalRenderer({ id, renderMode = RenderMode.STACKED, style, className, windowClassName, windowStyle, disableBackgroundScroll = true }: BaseModalRendererProps) {
     const dialogRef = useRef<HTMLDialogElement>(null);
     const modalWindowRefs = useRef<Map<string, HTMLDivElement>>(new Map());
-    const { setIsMounted, setModalWindowRefRef, modalStackMap, currentModalId, store } = useBaseModalInternal();
+    const { setIsMounted, setModalWindowRefRef, modalStackMap, currentModalId, store } = useBaseModalInternal({ rendererId: id });
     const modalStack = useMemo(() => Array.from(modalStackMap.values()), [modalStackMap]);
     const modalStackIds = useMemo(() => Array.from(modalStackMap.keys()), [modalStackMap]);
     const wrapperIdFinal = id || 'base-modal-wrapper';
     const prevActiveElement = useRef<HTMLElement | null>(null);
 
     useEffect(() => {
-        if (store.getState().isMounted) throw new Error("Multiple BaseModalRenderer detected. Only one BaseModalRenderer is allowed at a time.");
+        if (store.getState().isMounted) throw new Error(`A BaseModalRenderer with id "${id}" is already mounted; only one instance per id is allowed.`);
         setModalWindowRefRef(modalWindowRefs.current);
         setIsMounted(true);
         return () => {

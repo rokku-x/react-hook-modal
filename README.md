@@ -2,12 +2,20 @@
 
 [![CI](https://github.com/rokku-x/react-hook-dialog/actions/workflows/ci.yml/badge.svg)](https://github.com/rokku-x/react-hook-dialog/actions/workflows/ci.yml) [![npm version](https://img.shields.io/npm/v/@rokku-x/react-hook-modal.svg)](https://www.npmjs.com/package/@rokku-x/react-hook-modal) [![license](https://img.shields.io/npm/l/@rokku-x/react-hook-modal.svg)](LICENSE) [![downloads](https://img.shields.io/npm/dm/@rokku-x/react-hook-modal.svg)](https://www.npmjs.com/package/@rokku-x/react-hook-modal) ![TS](https://img.shields.io/badge/TS-%E2%9C%93-blue)
 
-A lightweight, powerful, and flexible React modal hook library that supports stacking and multi-window modals, with multiple rendering modes, dynamic and static modal support, and zero non-core dependencies (except React and Zustand).
+<p><a href="https://jgd.qzz.io/rhm.png"><img src="https://jgd.qzz.io/rhm.png" alt="react-hook-modal Logo" width="600"/></a></p>
+
+A lightweight, powerful, and flexible React modal hook library that supports stacking and multi-window modals, with multiple rendering modes, dynamic and static modal support, and zero non-core dependencies.
 
 ## Installation
 
 ```bash
 npm install @rokku-x/react-hook-modal
+# or
+bun add @rokku-x/react-hook-modal
+# or
+yarn add @rokku-x/react-hook-modal
+# or
+pnpm add @rokku-x/react-hook-modal
 ```
 
 ## Features
@@ -18,9 +26,20 @@ npm install @rokku-x/react-hook-modal
 - 🪝 **React Hooks API** - Easy-to-use hook-based interface
 - 📦 **TypeScript Support** - Full type safety out of the box
 - 🎨 **Customizable Styling** - Extensive styling props for complete control
+- 🔹 **Versatile Overlays** - Use it to build dialogs, alerts, popups, prompts, forms, loading spinners, UI blockers, and more.
 - ✨ **Auto-injected Styles** - CSS automatically injected, no separate import needed
 - 🪶 **Lightweight** - Under 3 kB gzipped, tree-shakeable with modular build
 - ♿ **Accessibility** - Built-in support for scroll prevention and inert attribute
+
+### Use Cases
+
+- **Confirmation & Alerts** — Small confirm/cancel dialogs for destructive actions and important messages.
+- **Prompts & Forms** — Collect user input using forms rendered inside modals (supports dynamic portals or static form content).
+- **Loading & Activity Spinners** — Full-screen or localized spinners during async operations; show one-off instances while loading.
+- **UI Blockers & Backdrops** — Block user interaction and display status or retry actions when needed.
+- **Popups & Tool Panels** — Lightweight contextual overlays or tool panels rendered into a modal window.
+- **Stacked & Multi-instance Modals** — Open multiple stacked modals or use multiple `BaseModalRenderer` instances (via `rendererId`) to scope overlays to different app areas, apply different styles to different renderers.
+
 
 ## Quick Start
 
@@ -40,6 +59,19 @@ function App() {
   );
 }
 ```
+
+You can mount multiple `BaseModalRenderer` instances — each must have a unique `id` to use an isolated modal store. When using hooks, pass `rendererId` to target a specific renderer's store. Example:
+
+```tsx
+// Mount two separate renderers (different areas of the app)
+<BaseModalRenderer id="sidebar-modals" />
+<BaseModalRenderer id="dialog-modals" />
+
+// Target a renderer from a hook
+const [showSidebarModal] = useStaticModal({ rendererId: 'sidebar-modals' })
+const [renderDialog, openDialog] = useDynamicModal({ rendererId: 'dialog-modals' })
+```
+
 
 ### 2. Use the Modal Hook
 
@@ -64,6 +96,14 @@ function MyComponent() {
 
 ## API Reference
 
+### Hooks Summary
+
+| Hook | Args | Returns | Description |
+|------|------|---------|-------------|
+| `useBaseModal` | `{ rendererId?: string }` | `BaseModal actions & state` | Low-level store access for advanced operations. Pass `rendererId` to target a renderer instance. |
+| `useStaticModal` | `{  rendererId?: string; element?: AcceptableElement }` | `[showModal, closeModal, focus, updateModalContent, id]` | Static modal hook; open named or one-off instances, default content via `element`. Use `rendererId` to target a specific renderer. |
+| `useDynamicModal` | `{ rendererId?: string }` | `[renderModalElement, showModal, closeModal, focus, id, isForeground]` | Dynamic modal hook (portal-rendered content). `showModal` returns the modal id string. |
+
 ### BaseModalRenderer
 
 The main component that renders all modals in your application. Must be mounted at the root level.
@@ -72,8 +112,8 @@ The main component that renders all modals in your application. Must be mounted 
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
+| `id` | `string` | `'base-modal-wrapper'` | Unique identifier for the modal wrapper for creating isolated modal stores instance. |
 | `renderMode` | `RenderMode` | `RenderMode.STACKED` | Determines how multiple modals are rendered |
-| `id` | `string` | `'base-modal-wrapper'` | Unique identifier for the modal wrapper |
 | `style` | `CSSProperties` | `undefined` | Inline styles for the dialog element |
 | `className` | `string` | `undefined` | CSS class for the dialog element |
 | `windowClassName` | `string` | `undefined` | CSS class applied to each modal window |
@@ -195,44 +235,104 @@ The new overloads also allow opening multiple live static instances via custom i
 
 ### useDynamicModal
 
-Hook for rendering dynamic modal content (content rendered from within the modal).
+Parameters
 
-#### Returns
+| Name | Type | Default | Description |
+|------|------|---------|-------------|
+| `rendererId` | `string` | `'default'` | ID of the `BaseModalRenderer` to target. Use to scope dynamic modals to a specific renderer instance. |
 
-```typescript
-[renderModalElement, showModal, closeModal, focus, id, isForeground]
-```
+Returns
 
-| Return Value | Type | Description |
-|---|---|---|
-| `renderModalElement` | `(el: ReactNode) => ReactNode` | Function to render content inside the modal |
-| `showModal` | `() => void` | Function to open the modal |
-| `closeModal` | `() => void` | Function to close the modal |
-| `focus` | `() => boolean` | Bring this modal to the foreground |
-| `id` | `string` | Unique identifier for this modal instance |
-| `isForeground` | `boolean` | Whether this modal is currently in focus |
+| Return | Type | Description |
+|--------|------|-------------|
+| `renderModalElement` | `(el: ReactNode) => ReactNode` | Renders content into the modal window via a portal (returns a React portal when renderer is mounted). |
+| `showModal` | `() => string` | Opens the modal and returns the modal id string. |
+| `closeModal` | `() => boolean` | Closes the modal instance. |
+| `focus` | `() => boolean` | Brings this modal to the foreground. |
+| `id` | `string` | Hook instance id. |
+| `isForeground` | `boolean` | Whether this modal is currently focused. |
+
+Hook for rendering dynamic modal content (content rendered from within the modal). Use the `rendererId` option to scope dynamic modals to a specific renderer instance.
 
 ### useBaseModal
 
-Low-level hook for direct modal store access. Used internally by other hooks.
+Parameters
 
-#### Returns
+| Name | Type | Default | Description |
+|------|------|---------|-------------|
+| `rendererId` | `string` | `'default'` | The `rendererId` identifies which `BaseModalRenderer` store to target. |
 
-```typescript
-{
-  pushModal: (modalId: string, el: AcceptableElement, isDynamic?: boolean) => string,
-  popModal: (modalId: string) => boolean,
-  updateModal: (modalId: string, newContent: AcceptableElement) => boolean,
-  focusModal: (modalId: string) => boolean,
-  getModal: (modalId: string) => [AcceptableElement | null, boolean] | undefined,
-  getModalWindowRef: (modalId: string) => HTMLDivElement | undefined,
-  getModalOrderIndex: (modalId: string) => number,
-  currentModalId?: string,
-  modalStackMap: Map<string, [AcceptableElement | null, boolean]>
+Returns
+
+| Action/Property | Type | Description |
+|-----------------|------|-------------|
+| `pushModal` | `(modalId: string, el: AcceptableElement, isDynamic?: boolean) => string` | Pushes a modal into the store and returns the modal id. |
+| `popModal` | `(modalId: string) => boolean` | Removes a modal by id. |
+| `updateModal` | `(modalId: string, newContent: AcceptableElement) => boolean` | Updates content for static modals. |
+| `focusModal` | `(modalId: string) => boolean` | Moves a modal to the top of the stack. |
+| `getModal` | `(modalId: string) => [AcceptableElement | null, boolean] | undefined` | Retrieves a modal entry. |
+| `getModalWindowRef` | `(modalId: string) => HTMLDivElement | undefined` | Returns the modal window DOM node for a given id. |
+| `getModalOrderIndex` | `(modalId: string) => number` | Returns the modal order index (zero-based). |
+| `currentModalId` | `string?` | Id of the modal currently in focus. |
+| `modalStackMap` | `Map<string, [AcceptableElement | null, boolean]>` | Internal stack map of modal entries. |
+
+Low-level hook for direct modal store access for creating advanced custom modals. Used internally by other hooks.
+
+## Examples
+
+### Quick Examples
+
+**Confirm / Alert**
+
+```tsx
+function ConfirmExample() {
+  const [showModal, closeModal] = useStaticModal()
+  const openConfirm = () => showModal(
+    <div>
+      <h2>Confirm Delete</h2>
+      <p>Are you sure you want to delete this?</p>
+      <button onClick={() => { console.log('deleted'); closeModal(); }}>Delete</button>
+      <button onClick={closeModal}>Cancel</button>
+    </div>
+  )
+  return <button onClick={openConfirm}>Delete</button>
 }
 ```
 
-## Examples
+**Loading Spinner**
+
+```tsx
+function LoadingExample() {
+  const [showModal, closeModal] = useStaticModal()
+  const runTask = async () => {
+    const spinnerId = showModal(<div className="spinner">Loading…</div>, true)
+    await someAsyncWork()
+    closeModal(spinnerId)
+  }
+  return <button onClick={runTask}>Run Task</button>
+}
+```
+
+**Prompt / Form (dynamic)**
+
+```tsx
+function PromptExample() {
+  const [renderModalElement, showModal, closeModal] = useDynamicModal()
+  const onOpen = () => showModal()
+  return (
+    <>
+      <button onClick={onOpen}>Open Prompt</button>
+      {renderModalElement(
+        <form onSubmit={(e) => { e.preventDefault(); /* read value */ closeModal() }}>
+          <input name="value" placeholder="Enter value" />
+          <button type="submit">OK</button>
+          <button type="button" onClick={closeModal}>Cancel</button>
+        </form>
+      )}
+    </>
+  )
+}
+```
 
 ### Example 1: Basic Static Modal
 
@@ -277,15 +377,17 @@ Pass the modal content directly to the `useStaticModal` hook. Call `showModal()`
 import { useStaticModal, BaseModalRenderer, ModalBackdrop, ModalWindow } from '@rokku-x/react-hook-modal';
 
 function WelcomeModal() {
-  const [showModal, closeModal] = useStaticModal(
-    <ModalBackdrop>
-      <ModalWindow style={{ padding: '20px', background: 'white', borderRadius: '8px' }}>
-        <h2>Welcome</h2>
-        <p>This modal content is defined in the hook parameter.</p>
-        <button onClick={closeModal}>Close</button>
-      </ModalWindow>
-    </ModalBackdrop>
-  );
+  const [showModal, closeModal] = useStaticModal({
+    element: (
+      <ModalBackdrop>
+        <ModalWindow style={{ padding: '20px', background: 'white', borderRadius: '8px' }}>
+          <h2>Welcome</h2>
+          <p>This modal content is defined in the hook parameter.</p>
+          <button onClick={closeModal}>Close</button>
+        </ModalWindow>
+      </ModalBackdrop>
+    )
+  });
   
   return <button onClick={showModal}>Show Welcome Modal</button>;
 }
