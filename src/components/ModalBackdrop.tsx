@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useRef } from "react";
 import './ModalBackdrop.css'
+import { createPolyfillComponent } from "@/utils/createPolyfillComponent";
 
-export interface ModalBackdropProps extends React.HTMLAttributes<HTMLDivElement> {
-}
+export interface ModalBackdropProps extends React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement> { }
 
-export default function ModalBackdrop({ onClick, className = "", style = {}, children }: ModalBackdropProps) {
+function ModalBackdrop({ onClick, className = "", style = {}, children }: ModalBackdropProps) {
     return (
         <div
             className={`hook-modal-backdrop ${className}`}
@@ -15,3 +15,5 @@ export default function ModalBackdrop({ onClick, className = "", style = {}, chi
         </div>
     );
 }
+
+export default createPolyfillComponent(ModalBackdrop) as typeof ModalBackdrop;
