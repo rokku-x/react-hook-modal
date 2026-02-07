@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, renderHook, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ReactNode } from 'react'
 import BaseModalRenderer from '../BaseModalRenderer'
-import { RenderMode } from '@/hooks/useBaseModal'
+import { RenderMode, useBaseModalInternal } from '@/hooks/useBaseModal'
 import useStaticModal from '@/hooks/useStaticModal'
 
 // Test component that uses BaseModalRenderer and useStaticModal
@@ -163,15 +163,35 @@ describe('BaseModalRenderer', () => {
         )
     })
 
-    it('should work with multiple renderers error handling', () => {
+    it('should allow multiple renderers with different ids', () => {
+        render(
+            <div>
+                <BaseModalRenderer id="renderer-1" />
+                <BaseModalRenderer id="renderer-2" />
+            </div>
+        )
+    })
+
+    it('should throw when mounting duplicate ids', () => {
         expect(() => {
             render(
                 <div>
                     <BaseModalRenderer id="renderer-1" />
-                    <BaseModalRenderer id="renderer-2" />
+                    <BaseModalRenderer id="renderer-1" />
                 </div>
             )
         }).toThrow()
+    })
+
+    it('should isolate stores by renderer id', () => {
+        render(<div><BaseModalRenderer id="r1" /><BaseModalRenderer id="r2" /></div>)
+        const { result: r1 } = renderHook(() => useBaseModalInternal({ rendererId: 'r1' }))
+        const { result: r2 } = renderHook(() => useBaseModalInternal({ rendererId: 'r2' }))
+        act(() => {
+            r1.current.store.getState().actions.pushModal('m1', '<div />', false)
+        })
+        expect(r1.current.currentModalId).toBe('m1')
+        expect(r2.current.currentModalId).toBeUndefined()
     })
 
     it('should handle responsive props', () => {

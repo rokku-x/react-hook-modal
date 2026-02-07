@@ -44,7 +44,7 @@ describe('useStaticModal', () => {
 
     it('should show default content when provided to hook', () => {
         const defaultContent = 'Default Content'
-        const { result } = renderHook(() => useStaticModal(defaultContent))
+        const { result } = renderHook(() => useStaticModal({ element: defaultContent }))
         const [showModal] = result.current
 
         act(() => {
@@ -90,7 +90,7 @@ describe('useStaticModal', () => {
 
     it('should show provided content over default content', () => {
         const defaultContent = 'Default'
-        const { result } = renderHook(() => useStaticModal(defaultContent))
+        const { result } = renderHook(() => useStaticModal({ element: defaultContent }))
         const [showModal] = result.current
 
         act(() => {
@@ -182,7 +182,7 @@ describe('useStaticModal', () => {
     })
 
     it('should support function as default content', () => {
-        const { result } = renderHook(() => useStaticModal(() => 'Default Rendered'))
+        const { result } = renderHook(() => useStaticModal({ element: () => 'Default Rendered' }))
         const [showModal] = result.current
 
         act(() => {
@@ -250,6 +250,19 @@ describe('useStaticModal', () => {
         })
 
         expect(result.current[0]).toBeDefined()
+    })
+
+    it('should isolate stores by renderer id', () => {
+        render(<><BaseModalRenderer id="r1" /><BaseModalRenderer id="r2" /></>)
+        const { result: s1 } = renderHook(() => useStaticModal({ rendererId: 'r1' }))
+        const { result: s2 } = renderHook(() => useStaticModal({ rendererId: 'r2' }))
+        const { result: b1 } = renderHook(() => useBaseModal({ rendererId: 'r1' }))
+        const { result: b2 } = renderHook(() => useBaseModal({ rendererId: 'r2' }))
+        act(() => {
+            s1.current[0]('r1-content')
+        })
+        expect(b1.current.currentModalId).toBe(s1.current[4])
+        expect(b2.current.currentModalId).toBeUndefined()
     })
 })
 

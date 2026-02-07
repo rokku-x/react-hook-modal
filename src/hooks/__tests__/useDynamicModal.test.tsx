@@ -195,6 +195,17 @@ describe('useDynamicModal', () => {
         // In jsdom with renderer mounted, returns a React portal
         expect(rendered === null || (rendered as any)?.$$typeof === Symbol.for('react.portal')).toBeTruthy()
     })
+
+    it('should isolate modals by renderer id', () => {
+        render(<><BaseModalRenderer id="r1" /><BaseModalRenderer id="r2" /></>)
+        const { result: d1 } = renderHook(() => useDynamicModal({ rendererId: 'r1' }))
+        const { result: d2 } = renderHook(() => useDynamicModal({ rendererId: 'r2' }))
+        act(() => { d1.current[1]() })
+        const { result: b1 } = renderHook(() => useBaseModal({ rendererId: 'r1' }))
+        const { result: b2 } = renderHook(() => useBaseModal({ rendererId: 'r2' }))
+        expect(b1.current.currentModalId).toBe(d1.current[4])
+        expect(b2.current.currentModalId).toBeUndefined()
+    })
 })
 
 describe('useDynamicModal - Negative Tests', () => {

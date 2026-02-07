@@ -42,87 +42,96 @@ export interface Store {
     }
 }
 
-
-const storeBaseModal = create<Store>()((set, get) => ({
-    modalStackMap: new Map(),
-    isMounted: false,
-    renderMode: RenderMode.STACKED,
-    modalWindowRefs: undefined,
-    currentModalId: undefined,
-    internalActions: {
-        setModalWindowRefRef: (map?: Map<string, HTMLDivElement>) => set((state) => {
-            return { modalWindowRefs: map };
-        }),
-        setIsMounted: (mounted: boolean) => set({ isMounted: mounted }),
-        setRenderMode: (mode: RenderMode) => set({ renderMode: mode }),
-    },
-    actions: {
-        pushModal: (modalId: string | undefined, el: AcceptableElement, isDynamic: boolean = false) => {
-            modalId = modalId ?? Math.random().toString(36).substring(2, 6);
-            if (!get().isMounted) console.warn("BaseModalRenderer must be mounted before using. Please add <BaseModalRenderer /> to your component tree.");
-            const modal = get().modalStackMap.get(modalId);
-            if (modal !== undefined) {
-                get().actions.focusModal(modalId);
-                return modalId;
-            }
-            set((state) => {
-                let item: [AcceptableElement | null, boolean] = [el, isDynamic];
-                const newMap = new Map(state.modalStackMap);
-                newMap.set(modalId, item);
-                return { modalStackMap: newMap, currentModalId: modalId };
-            });
-            return modalId
+function createStore(instanceId: string = "default") {
+    return create<Store>()((set, get) => ({
+        modalStackMap: new Map(),
+        isMounted: false,
+        renderMode: RenderMode.STACKED,
+        modalWindowRefs: undefined,
+        currentModalId: undefined,
+        internalActions: {
+            setModalWindowRefRef: (map?: Map<string, HTMLDivElement>) => set((state) => {
+                return { modalWindowRefs: map };
+            }),
+            setIsMounted: (mounted: boolean) => set({ isMounted: mounted }),
+            setRenderMode: (mode: RenderMode) => set({ renderMode: mode }),
         },
-        popModal: (modalId: string) => {
-            const modal = get().modalStackMap.get(modalId);
-            if (!modal) return false;
-            set((state) => {
-                const newMap = new Map(state.modalStackMap);
-                newMap.delete(modalId);
-                const lastModalId = Array.from(newMap.keys())[newMap.size - 1];
-                return { modalStackMap: newMap, currentModalId: lastModalId };
-            });
-            return true
-        },
-        getModal: (modalId: string) => {
-            return get().modalStackMap.get(modalId);
-        },
-        updateModal: (modalId: string, newContent: AcceptableElement, isDynamic?: boolean) => {
-            const modal = get().modalStackMap.get(modalId);
-            if (!modal) return false;
-            set((state) => {
-                const newMap = new Map(state.modalStackMap);
-                //throw error if not dynamic
-                if (modal[1] === true) {
-                    console.warn(`Modal with id ${modalId} is dynamic. Cannot update content.`);
-                    return { modalStackMap: state.modalStackMap };
+        actions: {
+            pushModal: (modalId: string | undefined, el: AcceptableElement, isDynamic: boolean = false) => {
+                modalId = modalId ?? Math.random().toString(36).substring(2, 6);
+                if (!get().isMounted) console.warn("BaseModalRenderer must be mounted before using. Please add <BaseModalRenderer /> to your component tree.");
+                const modal = get().modalStackMap.get(modalId);
+                if (modal !== undefined) {
+                    get().actions.focusModal(modalId);
+                    return modalId;
                 }
-                modal[0] = newContent;
-                modal[1] = isDynamic ?? modal[1];
-                newMap.set(modalId, modal);
-                return { modalStackMap: newMap };
-            })
-            return true
-        },
-        focusModal: (modalId: string) => {
-            const item = get().modalStackMap.get(modalId);
-            if (!item) return false;
-            set((state) => {
-                const newMap = new Map(state.modalStackMap);
-                newMap.delete(modalId);
-                newMap.set(modalId, item);
-                return { modalStackMap: newMap, currentModalId: modalId };
-            })
-            return true;
-        },
-        getModalOrderIndex: (modalId: string) => {
-            const keys = Array.from(get().modalStackMap.keys());
-            return keys.indexOf(modalId);
-        },
-        getModalWindowRef: (modalId: string) => {
-            return get().modalWindowRefs?.get(modalId);
+                set((state) => {
+                    let item: [AcceptableElement | null, boolean] = [el, isDynamic];
+                    const newMap = new Map(state.modalStackMap);
+                    newMap.set(modalId, item);
+                    return { modalStackMap: newMap, currentModalId: modalId };
+                });
+                return modalId
+            },
+            popModal: (modalId: string) => {
+                const modal = get().modalStackMap.get(modalId);
+                if (!modal) return false;
+                set((state) => {
+                    const newMap = new Map(state.modalStackMap);
+                    newMap.delete(modalId);
+                    const lastModalId = Array.from(newMap.keys())[newMap.size - 1];
+                    return { modalStackMap: newMap, currentModalId: lastModalId };
+                });
+                return true
+            },
+            getModal: (modalId: string) => {
+                return get().modalStackMap.get(modalId);
+            },
+            updateModal: (modalId: string, newContent: AcceptableElement, isDynamic?: boolean) => {
+                const modal = get().modalStackMap.get(modalId);
+                if (!modal) return false;
+                set((state) => {
+                    const newMap = new Map(state.modalStackMap);
+                    //throw error if not dynamic
+                    if (modal[1] === true) {
+                        console.warn(`Modal with id ${modalId} is dynamic. Cannot update content.`);
+                        return { modalStackMap: state.modalStackMap };
+                    }
+                    modal[0] = newContent;
+                    modal[1] = isDynamic ?? modal[1];
+                    newMap.set(modalId, modal);
+                    return { modalStackMap: newMap };
+                })
+                return true
+            },
+            focusModal: (modalId: string) => {
+                const item = get().modalStackMap.get(modalId);
+                if (!item) return false;
+                set((state) => {
+                    const newMap = new Map(state.modalStackMap);
+                    newMap.delete(modalId);
+                    newMap.set(modalId, item);
+                    return { modalStackMap: newMap, currentModalId: modalId };
+                })
+                return true;
+            },
+            getModalOrderIndex: (modalId: string) => {
+                const keys = Array.from(get().modalStackMap.keys());
+                return keys.indexOf(modalId);
+            },
+            getModalWindowRef: (modalId: string) => {
+                return get().modalWindowRefs?.get(modalId);
+            }
         }
-    }
-}));
+    }));
+}
 
-export default storeBaseModal;
+const storeMap = new Map<string, ReturnType<typeof createStore>>();
+
+export type BaseModalStoreInstance = ReturnType<typeof createStore>;
+
+export default function (instanceId: string = "default"): BaseModalStoreInstance {
+    if (!storeMap.has(instanceId)) storeMap.set(instanceId, createStore(instanceId));
+    return storeMap.get(instanceId)! as BaseModalStoreInstance;
+}
+
