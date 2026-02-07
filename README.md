@@ -100,9 +100,9 @@ function MyComponent() {
 
 | Hook | Args | Returns | Description |
 |------|------|---------|-------------|
-| `useStaticModal` | `{ element?: AcceptableElement; rendererId?: string }` | `[showModal, closeModal, focus, updateModalContent, id]` | Static modal hook; open named or one-off instances, default content via `element`. Use `rendererId` to target a specific renderer. |
+| `useBaseModal` | `{ rendererId?: string }` | `BaseModal actions & state` | Low-level store access for advanced operations. Pass `rendererId` to target a renderer instance. |
+| `useStaticModal` | `{  rendererId?: string; element?: AcceptableElement }` | `[showModal, closeModal, focus, updateModalContent, id]` | Static modal hook; open named or one-off instances, default content via `element`. Use `rendererId` to target a specific renderer. |
 | `useDynamicModal` | `{ rendererId?: string }` | `[renderModalElement, showModal, closeModal, focus, id, isForeground]` | Dynamic modal hook (portal-rendered content). `showModal` returns the modal id string. |
-| `useBaseModal` | `{ rendererId?: string }` | `Store actions & state` | Low-level store access for advanced operations. Pass `rendererId` to target a renderer instance. |
 
 ### BaseModalRenderer
 
@@ -112,8 +112,8 @@ The main component that renders all modals in your application. Must be mounted 
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
+| `id` | `string` | `'base-modal-wrapper'` | Unique identifier for the modal wrapper for creating isolated modal stores instance. |
 | `renderMode` | `RenderMode` | `RenderMode.STACKED` | Determines how multiple modals are rendered |
-| `id` | `string` | `'base-modal-wrapper'` | Unique identifier for the modal wrapper |
 | `style` | `CSSProperties` | `undefined` | Inline styles for the dialog element |
 | `className` | `string` | `undefined` | CSS class for the dialog element |
 | `windowClassName` | `string` | `undefined` | CSS class applied to each modal window |
