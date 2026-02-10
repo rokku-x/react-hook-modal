@@ -1,5 +1,11 @@
 # @rokku-x/react-hook-modal
 
+## 0.10.1
+
+### Patch Changes
+
+- 38978ed: fix: add wildcard for CSS file side effects in package.json
+
 ## 0.10.0
 
 ### Minor Changes
