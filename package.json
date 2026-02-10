@@ -120,6 +120,7 @@
   },
   "sideEffects": [
     "*.css",
+    "*.css*",
     "*.scss"
   ],
   "typesVersions": {
