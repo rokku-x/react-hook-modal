@@ -1,5 +1,11 @@
 # @rokku-x/react-hook-modal
 
+## 0.10.2
+
+### Patch Changes
+
+- ab6c63d: feat: add BaseModalRenderer styles for improved modal display and transitions
+
 ## 0.10.1
 
 ### Patch Changes
