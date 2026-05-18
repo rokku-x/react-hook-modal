@@ -1,14 +1,16 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import '@testing-library/jest-dom'
 import { render, screen, renderHook, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { ReactNode } from 'react'
 import BaseModalRenderer from '../BaseModalRenderer'
 import { RenderMode, useBaseModalInternal } from '@/hooks/useBaseModal'
 import useStaticModal from '@/hooks/useStaticModal'
 
+const makeRendererId = () => `renderer-${Math.random().toString(36).slice(2, 8)}`
+
 // Test component that uses BaseModalRenderer and useStaticModal
-function TestComponent() {
-    const [showModal, closeModal] = useStaticModal()
+function TestComponent({ rendererId }: { rendererId?: string }) {
+    const [showModal, closeModal] = useStaticModal({ rendererId })
 
     return (
         <div>
@@ -20,7 +22,7 @@ function TestComponent() {
             )}>
                 Open Modal
             </button>
-            <BaseModalRenderer renderMode={RenderMode.STACKED} />
+            <BaseModalRenderer id={rendererId} renderMode={RenderMode.STACKED} />
         </div>
     )
 }
@@ -28,12 +30,14 @@ function TestComponent() {
 describe('BaseModalRenderer', () => {
     beforeEach(() => {
         document.body.innerHTML = ''
+        document.body.className = ''
+        document.body.removeAttribute('inert')
     })
 
     it('should render without crashing', () => {
         render(
             <div>
-                <BaseModalRenderer />
+                <BaseModalRenderer id={makeRendererId()} />
             </div>
         )
     })
@@ -41,7 +45,7 @@ describe('BaseModalRenderer', () => {
     it('should accept renderMode prop', () => {
         const { container } = render(
             <div>
-                <BaseModalRenderer renderMode={RenderMode.STACKED} />
+                <BaseModalRenderer id={makeRendererId()} renderMode={RenderMode.STACKED} />
             </div>
         )
 
@@ -58,104 +62,141 @@ describe('BaseModalRenderer', () => {
         expect(container).toBeTruthy()
     })
 
-    it('should accept custom className', () => {
-        render(
-            <div>
-                <BaseModalRenderer className="custom-wrapper" />
-            </div>
-        )
+    it('should accept custom className and style props on wrapper dialog', async () => {
+        const rendererId = makeRendererId()
+
+        function WrapperDialogTest() {
+            const [showModal] = useStaticModal({ rendererId })
+
+            return (
+                <div>
+                    <button onClick={() => showModal(<div data-testid="modal-content">Modal</div>, 'modal-1')}>Open</button>
+                    <BaseModalRenderer id={rendererId} className="custom-wrapper" style={{ padding: '20px' }} />
+                </div>
+            )
+        }
+
+        render(<WrapperDialogTest />)
+        await userEvent.click(screen.getByText('Open'))
+
+        const dialog = document.body.querySelector('dialog.renderer-wrapper') as HTMLDialogElement
+        expect(dialog).toBeTruthy()
+        expect(dialog).toHaveClass('renderer-wrapper custom-wrapper')
+        expect(dialog).toHaveStyle({ padding: '20px' })
     })
 
-    it('should accept custom style prop', () => {
-        render(
-            <div>
-                <BaseModalRenderer style={{ padding: '20px' }} />
-            </div>
-        )
+    it('should apply custom window className and style for modal windows', async () => {
+        const rendererId = makeRendererId()
+
+        function WindowStyleTest() {
+            const [showModal] = useStaticModal({ rendererId })
+
+            return (
+                <div>
+                    <button onClick={() => showModal(<div data-testid="window-modal">Modal</div>, 'window-modal')}>Open</button>
+                    <BaseModalRenderer id={rendererId} windowClassName="custom-window" windowStyle={{ backgroundColor: 'white' }} />
+                </div>
+            )
+        }
+
+        render(<WindowStyleTest />)
+        await userEvent.click(screen.getByText('Open'))
+
+        const window = screen.getByTestId('window-modal').closest('.custom-window') as HTMLElement
+        expect(window).toBeTruthy()
+        expect(window.style.backgroundColor).toBe('white')
     })
 
-    it('should accept windowClassName prop', () => {
-        render(
-            <div>
-                <BaseModalRenderer windowClassName="custom-window" />
-            </div>
-        )
-    })
+    it('should preserve body scroll when disableBackgroundScroll is false', async () => {
+        const rendererId = makeRendererId()
 
-    it('should accept windowStyle prop', () => {
-        render(
-            <div>
-                <BaseModalRenderer windowStyle={{ backgroundColor: 'white' }} />
-            </div>
-        )
-    })
+        function NoScrollTest() {
+            const [showModal] = useStaticModal({ rendererId })
 
-    it('should support disableBackgroundScroll prop', () => {
-        render(
-            <div>
-                <BaseModalRenderer disableBackgroundScroll={false} />
-            </div>
-        )
+            return (
+                <div>
+                    <button onClick={() => showModal(<div data-testid="no-scroll-modal">Modal</div>, 'no-scroll-modal')}>Open</button>
+                    <BaseModalRenderer id={rendererId} disableBackgroundScroll={false} />
+                </div>
+            )
+        }
+
+        render(<NoScrollTest />)
+        await userEvent.click(screen.getByText('Open'))
+
+        expect(document.body.classList.contains('hook-modal-open')).toBe(false)
     })
 
     it('should render modals in STACKED mode', async () => {
-        render(<TestComponent />)
+        const rendererId = makeRendererId()
+        render(<TestComponent rendererId={rendererId} />)
 
         const openButton = screen.getByText('Open Modal')
         await userEvent.click(openButton)
 
-        // Modal should be visible
         expect(screen.getByTestId('modal-content')).toBeTruthy()
     })
 
-    it('should render modals in CURRENT_ONLY mode', async () => {
+    it('should render only the active modal in CURRENT_ONLY mode', async () => {
+        const rendererId = makeRendererId()
+
         function CurrentOnlyTest() {
-            const [showModal, closeModal] = useStaticModal()
+            const [showModal] = useStaticModal({ rendererId })
 
             return (
                 <div>
-                    <button onClick={() => showModal(
-                        <div data-testid="modal-1">Modal 1</div>
-                    )}>
-                        Open Modal 1
-                    </button>
-                    <BaseModalRenderer renderMode={RenderMode.CURRENT_ONLY} />
+                    <button onClick={() => showModal(<div data-testid="modal-1">Modal 1</div>, 'modal-1')}>Open Modal 1</button>
+                    <button onClick={() => showModal(<div data-testid="modal-2">Modal 2</div>, 'modal-2')}>Open Modal 2</button>
+                    <BaseModalRenderer id={rendererId} renderMode={RenderMode.CURRENT_ONLY} />
                 </div>
             )
         }
 
         render(<CurrentOnlyTest />)
 
-        const button = screen.getByText('Open Modal 1')
-        await userEvent.click(button)
+        await userEvent.click(screen.getByText('Open Modal 1'))
+        expect(screen.getByTestId('modal-1')).toBeTruthy()
+
+        await userEvent.click(screen.getByText('Open Modal 2'))
+        expect(screen.getByTestId('modal-2')).toBeTruthy()
+        expect(screen.queryByTestId('modal-1')).toBeNull()
     })
 
-    it('should render modals in CURRENT_HIDDEN_STACK mode', async () => {
+    it('should render hidden stack entries in CURRENT_HIDDEN_STACK mode', async () => {
+        const rendererId = makeRendererId()
+
         function HiddenStackTest() {
-            const [showModal, closeModal] = useStaticModal()
+            const [showModal] = useStaticModal({ rendererId })
 
             return (
                 <div>
-                    <button onClick={() => showModal(
-                        <div data-testid="modal-1">Modal 1</div>
-                    )}>
-                        Open Modal
-                    </button>
-                    <BaseModalRenderer renderMode={RenderMode.CURRENT_HIDDEN_STACK} />
+                    <button onClick={() => showModal(<div data-testid="modal-1">Modal 1</div>, 'modal-1')}>Open Modal 1</button>
+                    <button onClick={() => showModal(<div data-testid="modal-2">Modal 2</div>, 'modal-2')}>Open Modal 2</button>
+                    <BaseModalRenderer id={rendererId} renderMode={RenderMode.CURRENT_HIDDEN_STACK} />
                 </div>
             )
         }
 
         render(<HiddenStackTest />)
 
-        const button = screen.getByText('Open Modal')
-        await userEvent.click(button)
+        await userEvent.click(screen.getByText('Open Modal 1'))
+        await userEvent.click(screen.getByText('Open Modal 2'))
+
+        expect(screen.getByTestId('modal-1')).toBeTruthy()
+        expect(screen.getByTestId('modal-2')).toBeTruthy()
+
+        const modal1 = screen.getByTestId('modal-1').closest('.modal-window') as HTMLElement
+        const modal2 = screen.getByTestId('modal-2').closest('.modal-window') as HTMLElement
+
+        expect(modal1).toHaveAttribute('aria-hidden', 'true')
+        expect(modal2).toHaveAttribute('aria-hidden', 'false')
     })
 
     it('should handle custom window styling', () => {
         render(
             <div>
                 <BaseModalRenderer
+                    id={makeRendererId()}
                     windowClassName="modal-window-custom"
                     windowStyle={{ borderRadius: '12px' }}
                 />
@@ -198,7 +239,7 @@ describe('BaseModalRenderer', () => {
         const { container } = render(
             <div>
                 <BaseModalRenderer
-                    id="responsive-modal"
+                    id={makeRendererId()}
                     className="renderer-wrapper-responsive"
                     style={{ width: '100vw' }}
                     windowStyle={{ maxHeight: '90vh' }}
@@ -212,7 +253,7 @@ describe('BaseModalRenderer', () => {
     it('should render with default props', () => {
         const { container } = render(
             <div>
-                <BaseModalRenderer />
+                <BaseModalRenderer id={makeRendererId()} />
             </div>
         )
 
@@ -225,7 +266,7 @@ describe('BaseModalRenderer', () => {
         for (const mode of modes) {
             const { container, unmount } = render(
                 <div>
-                    <BaseModalRenderer renderMode={mode} />
+                    <BaseModalRenderer id={makeRendererId()} renderMode={mode} />
                 </div>
             )
 
@@ -234,30 +275,31 @@ describe('BaseModalRenderer', () => {
         }
     })
 
-    it('should support inert attribute application', () => {
-        render(
-            <div>
-                <BaseModalRenderer />
-            </div>
-        )
-    })
+    it('should support inert attribute application when a modal is opened', async () => {
+        const rendererId = makeRendererId()
 
-    it('should handle null children gracefully', () => {
-        const { container } = render(
-            <div>
-                <BaseModalRenderer>
-                    {null}
-                </BaseModalRenderer>
-            </div>
-        )
+        function InertTest() {
+            const [showModal] = useStaticModal({ rendererId })
 
-        expect(container).toBeTruthy()
+            return (
+                <div>
+                    <button onClick={() => showModal(<div data-testid="inert-modal">Modal</div>, 'inert-modal')}>Open</button>
+                    <BaseModalRenderer id={rendererId} />
+                </div>
+            )
+        }
+
+        render(<InertTest />)
+        await userEvent.click(screen.getByText('Open'))
+
+        expect(document.body.hasAttribute('inert')).toBe(true)
     })
 
     it('should accept combined styling props', () => {
         render(
             <div>
                 <BaseModalRenderer
+                    id={makeRendererId()}
                     className="renderer-wrapper"
                     style={{
                         position: 'fixed',
