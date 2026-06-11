@@ -5,6 +5,26 @@ import path from 'path'
 import pkg from './package.json';
 import preserveDirectives from 'rollup-plugin-preserve-directives';
 
+function fixPureAnnotations() {
+    return {
+        name: 'fix-pure-annotations',
+        enforce: 'post' as const,
+        generateBundle(_options: any, bundle: any) {
+            for (const key of Object.keys(bundle)) {
+                const chunk = bundle[key];
+                if (chunk.type === 'chunk' && chunk.code) {
+                    // Fix misplaced @__PURE__ annotations that end up before `return`
+                    // instead of directly before the function call.
+                    chunk.code = chunk.code.replace(
+                        /\/\*\s*@__PURE__\s*\*\/\s*\n?\s*return\s+/g,
+                        'return /* @__PURE__ */ '
+                    );
+                }
+            }
+        }
+    };
+}
+
 function injectCss() {
     return {
         name: 'inject-css',
@@ -71,7 +91,8 @@ export default defineConfig({
             exclude: ['src/main.tsx', 'src/**/*.test.*', 'src/**/*.spec.*', 'src/**/__tests__/**'],
             rollupTypes: false
         }),
-        injectCss()
+        injectCss(),
+        fixPureAnnotations()
     ],
     build: {
         cssCodeSplit: false,
