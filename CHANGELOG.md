@@ -1,5 +1,11 @@
 # @rokku-x/react-hook-modal
 
+## 0.10.3
+
+### Patch Changes
+
+- b125f03: feat: add fixPureAnnotations plugin to correct @**PURE** annotation placement
+
 ## 0.10.2
 
 ### Patch Changes
