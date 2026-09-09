@@ -1,5 +1,11 @@
 # @rokku-x/react-hook-modal
 
+## 0.10.4
+
+### Patch Changes
+
+- 234c4a6: escape button fix: page interaction is blocked when escape key is used to exit the modal fix
+
 ## 0.10.3
 
 ### Patch Changes
