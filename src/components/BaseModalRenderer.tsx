@@ -92,6 +92,25 @@ export default function BaseModalRenderer({ id, renderMode = RenderMode.STACKED,
         }
     }, [modalStackEntries, currentModalId, disableBackgroundScroll]);
 
+    useEffect(() => {
+        const dialog = dialogRef.current;
+        if (!dialog) return;
+
+        const handleCancel = (event: Event) => {
+            event.preventDefault();
+            const state = store.getState();
+            const activeModalId = state.currentModalId ?? Array.from(state.modalStackMap.keys()).pop();
+            if (activeModalId !== undefined) {
+                state.actions.popModal(activeModalId);
+            }
+        };
+
+        dialog.addEventListener('cancel', handleCancel);
+        return () => {
+            dialog.removeEventListener('cancel', handleCancel);
+        };
+    }, [store, modalStackEntries.length]);
+
     const refCallback = useCallback((node: HTMLDivElement | null, modalId: string) => {
         if (node) {
             modalWindowRefs.current.set(modalId, node);

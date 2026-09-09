@@ -295,6 +295,35 @@ describe('BaseModalRenderer', () => {
         expect(document.body.hasAttribute('inert')).toBe(true)
     })
 
+    it('should remove inert from body and close the modal when Escape is pressed', async () => {
+        const rendererId = makeRendererId()
+
+        function EscapeTest() {
+            const [showModal] = useStaticModal({ rendererId })
+
+            return (
+                <div>
+                    <button onClick={() => showModal(<div data-testid="escape-modal">Modal</div>, 'escape-modal')}>Open</button>
+                    <BaseModalRenderer id={rendererId} />
+                </div>
+            )
+        }
+
+        render(<EscapeTest />)
+        await userEvent.click(screen.getByText('Open'))
+
+        expect(document.body.hasAttribute('inert')).toBe(true)
+        expect(screen.getByTestId('escape-modal')).toBeTruthy()
+
+        const dialog = document.body.querySelector('dialog.renderer-wrapper') as HTMLDialogElement
+        act(() => {
+            dialog.dispatchEvent(new Event('cancel', { cancelable: true }))
+        })
+
+        expect(document.body.hasAttribute('inert')).toBe(false)
+        expect(screen.queryByTestId('escape-modal')).toBeNull()
+    })
+
     it('should accept combined styling props', () => {
         render(
             <div>
